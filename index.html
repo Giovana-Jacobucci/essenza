@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Essenza — Moda feminina e perfumaria com curadoria exclusiva. Vestidos, blusas, calças, perfumes e acessórios com entrega para todo o Brasil."
+    />
+    <meta name="theme-color" content="#111111" />
+    <title>Essenza | Moda Feminina &amp; Perfumaria</title>
+    <link rel="canonical" href="https://essenzamodaeperfumaria.com/" />
+    <meta property="og:url" content="https://essenzamodaeperfumaria.com/" />
+    <base href="https://essenzamodaeperfumaria.com/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://viacep.com.br" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+
+    <!-- ── Barra de promoção ── -->
+    <div class="promo-bar" id="promoBar">
+      <span>🚚 <strong>Frete grátis</strong> em compras acima de R$&nbsp;399 para todo o Brasil</span>
+      <span>•</span>
+      <span>✨ Nova Coleção Inverno 2026 disponível</span>
+    </div>
+
+    <!-- ── Header ── -->
+    <header class="site-header" id="inicio">
+      <a class="brand" href="#inicio" aria-label="Essenza — início">
+        <img src="assets/essenza-symbol.png" alt="Essenza Moda Feminina &amp; Perfumaria" />
+      </a>
+
+      <nav class="desktop-nav" aria-label="Navegação principal">
+        <div class="nav-item">
+          <a href="#loja" data-category-link="Vestidos">Vestidos <i class="nav-chevron">▾</i></a>
+          <div class="dropdown">
+            <a href="#loja" data-category-link="Vestidos">Vestidos Longos</a>
+            <a href="#loja" data-category-link="Vestidos">Vestidos Curtos</a>
+            <a href="#loja" data-category-link="Vestidos">Vestidos Midi</a>
+            <a href="#loja" data-category-link="Vestidos">Vestidos Florais</a>
+          </div>
+        </div>
+        <div class="nav-item">
+          <a href="#loja" data-category-link="Blusas">Blusas <i class="nav-chevron">▾</i></a>
+          <div class="dropdown">
+            <a href="#loja" data-category-link="Blusas">T-Shirts</a>
+            <a href="#loja" data-category-link="Blusas">Croppeds</a>
+            <a href="#loja" data-category-link="Blusas">Blusas Sociais</a>
+            <a href="#loja" data-category-link="Blusas">Regatas</a>
+          </div>
+        </div>
+        <div class="nav-item">
+          <a href="#loja" data-category-link="Calças">Calças <i class="nav-chevron">▾</i></a>
+          <div class="dropdown">
+            <a href="#loja" data-category-link="Calças">Calça Jeans</a>
+            <a href="#loja" data-category-link="Calças">Calça Social</a>
+            <a href="#loja" data-category-link="Calças">Legging</a>
+            <a href="#loja" data-category-link="Calças">Shorts</a>
+          </div>
+        </div>
+        <div class="nav-item">
+          <a href="#loja" data-category-link="Perfumes">Perfumes <i class="nav-chevron">▾</i></a>
+          <div class="dropdown">
+            <a href="#loja" data-category-link="Perfumes">Feminino</a>
+            <a href="#loja" data-category-link="Perfumes">Masculino</a>
+            <a href="#loja" data-category-link="Perfumes">Unissex</a>
+          </div>
+        </div>
+        <a href="#loja" data-category-link="Acessórios">Acessórios</a>
+        <a href="#frete">Frete</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-button" id="openAdmin" type="button" aria-label="Abrir painel admin" title="Painel Admin">
+          ADM
+        </button>
+        <button class="cart-button" id="openCart" type="button" aria-label="Abrir carrinho">
+          Carrinho <span id="cartCount">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ══════════════════════════════════════════
+           HERO
+      ══════════════════════════════════════════ -->
+      <section class="hero" aria-label="Banner principal">
+        <div class="hero-media" aria-hidden="true">
+          <img
+            src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1400&q=85"
+            alt="Mulher elegante com moda feminina Essenza"
+            loading="eager"
+          />
+        </div>
+        <div class="hero-copy">
+          <p class="eyebrow">✦ Coleção Inverno 2026</p>
+          <img class="hero-symbol" src="assets/essenza-symbol.png" alt="" aria-hidden="true" />
+          <h1>Aqueça a sua<br/>melhor versão.</h1>
+          <p>
+            Moda feminina de inverno e perfumaria com curadoria exclusiva,
+            para a mulher que valoriza elegância em cada detalhe.
+            Entrega rápida para todo o Brasil.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-link" href="#loja" id="heroCtaMain">Ver Inverno →</a>
+            <a class="secondary-link" href="#loja" data-category-link="Perfumes" id="heroCtaPerfumes">Explorar Perfumes</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           BARRA DE SERVIÇOS
+      ══════════════════════════════════════════ -->
+      <section class="service-strip" aria-label="Benefícios Essenza">
+        <div class="service-strip-item">
+          <span class="strip-icon">🚚</span>
+          <span>Frete grátis</span>
+          <strong>acima de R$ 399</strong>
+        </div>
+        <div class="service-strip-item">
+          <span class="strip-icon">💳</span>
+          <span>PIX, Cartão</span>
+          <strong>e Boleto</strong>
+        </div>
+        <div class="service-strip-item">
+          <span class="strip-icon">🔄</span>
+          <span>Troca em</span>
+          <strong>até 7 dias</strong>
+        </div>
+        <div class="service-strip-item">
+          <span class="strip-icon">🔒</span>
+          <span>Compra</span>
+          <strong>100% segura</strong>
+        </div>
+        <div class="service-strip-item">
+          <span class="strip-icon">📦</span>
+          <span>Entrega</span>
+          <strong>para todo o Brasil</strong>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           EDITORIAL
+      ══════════════════════════════════════════ -->
+      <section class="editorial-intro reveal">
+        <div>
+          <p class="eyebrow">A nossa essência</p>
+          <h2>Elegância que você sente e veste.</h2>
+        </div>
+        <p>
+          A Essenza nasceu para a mulher que sabe o que quer: elegância sem esforço,
+          fragrâncias que marcam presença e peças que duram além da estação.
+          Aqui você encontra curadoria exclusiva com atendimento próximo
+          e entrega calculada por CEP para todo o Brasil.
+        </p>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           CATEGORIAS
+      ══════════════════════════════════════════ -->
+      <section class="category-showcase" aria-label="Nossas categorias">
+        <a class="category-card" href="#loja" data-category-link="Vestidos" id="catVestidos">
+          <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1544022613-e87ca75a784a?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="category-card-content">
+            <span class="category-card-num">01</span>
+            <strong>Vestidos de inverno</strong>
+            <small>Texturas encorpadas para dias frios.</small>
+          </div>
+        </a>
+        <a class="category-card" href="#loja" data-category-link="Blusas" id="catBlusas">
+          <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="category-card-content">
+            <span class="category-card-num">02</span>
+            <strong>Tricôs &amp; blusas</strong>
+            <small>Camadas elegantes para aquecer.</small>
+          </div>
+        </a>
+        <a class="category-card" href="#loja" data-category-link="Calças" id="catCalcas">
+          <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="category-card-content">
+            <span class="category-card-num">03</span>
+            <strong>Calças</strong>
+            <small>Alfaiataria e conforto para o frio.</small>
+          </div>
+        </a>
+        <a class="category-card" href="#loja" data-category-link="Perfumes" id="catPerfumes">
+          <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="category-card-content">
+            <span class="category-card-num">04</span>
+            <strong>Perfumes</strong>
+            <small>Fragrâncias que ficam na memória.</small>
+          </div>
+        </a>
+        <a class="category-card" href="#loja" data-category-link="Acessórios" id="catAcessorios">
+          <div class="category-card-bg" style="background-image: url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="category-card-content">
+            <span class="category-card-num">05</span>
+            <strong>Acessórios</strong>
+            <small>O detalhe que transforma o look.</small>
+          </div>
+        </a>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           BARRA DE PROGRESSO FRETE GRÁTIS
+      ══════════════════════════════════════════ -->
+      <div class="freeship-bar" id="freeshipBar" aria-live="polite">
+        <div class="freeship-progress-wrap">
+          <p id="freeshipMsg">Adicione itens ao carrinho e ganhe <strong>frete grátis</strong> acima de R$&nbsp;399!</p>
+          <div class="freeship-track">
+            <div class="freeship-fill" id="freeshipFill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           CATÁLOGO
+      ══════════════════════════════════════════ -->
+      <section class="section-heading" id="loja">
+        <div>
+          <p class="eyebrow">Catálogo</p>
+          <h2>Produtos em destaque</h2>
+        </div>
+        <label class="toolbar" style="gap:0">
+          <span style="font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-right:10px;">Buscar</span>
+          <input id="searchInput" type="search" placeholder="Perfume, vestido, bolsa…" style="min-width:200px" />
+        </label>
+      </section>
+
+      <!-- Pills de filtro -->
+      <div class="filter-pills" id="filterPills" role="group" aria-label="Filtrar por categoria">
+        <button class="filter-pill active" data-filter="todos" type="button">Todos</button>
+        <button class="filter-pill" data-filter="Vestidos" type="button">Vestidos</button>
+        <button class="filter-pill" data-filter="Blusas" type="button">Blusas</button>
+        <button class="filter-pill" data-filter="Calças" type="button">Calças</button>
+        <button class="filter-pill" data-filter="Perfumes" type="button">Perfumes</button>
+        <button class="filter-pill" data-filter="Acessórios" type="button">Acessórios</button>
+      </div>
+
+      <!-- Grid de produtos -->
+      <section class="product-grid" id="productGrid" aria-live="polite"></section>
+
+      <!-- ══════════════════════════════════════════
+           DEPOIMENTOS
+      ══════════════════════════════════════════ -->
+      <section class="testimonials-section reveal" aria-label="Depoimentos de clientes">
+        <p class="eyebrow" style="justify-content:center">O que nossas clientes dizem</p>
+        <h2 style="text-align:center;color:var(--paper);margin-bottom:56px">Amor à primeira compra.</h2>
+        <div class="testimonials-grid">
+          <div class="testimonial-card reveal reveal-delay-1">
+            <div class="testimonial-stars">★★★★★</div>
+            <blockquote>"Recebi meu pedido em 3 dias e a embalagem era linda! O vestido ficou perfeito, já é minha loja favorita."</blockquote>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">MS</div>
+              <div class="testimonial-author-info">
+                <strong>Mariana S.</strong>
+                <span>São Paulo, SP</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card reveal reveal-delay-2">
+            <div class="testimonial-stars">★★★★★</div>
+            <blockquote>"O perfume que comprei é incrível, exatamente como descrito. Atendimento super rápido e atencioso!"</blockquote>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">CR</div>
+              <div class="testimonial-author-info">
+                <strong>Camila R.</strong>
+                <span>Rio de Janeiro, RJ</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card reveal reveal-delay-3">
+            <div class="testimonial-stars">★★★★★</div>
+            <blockquote>"Comprei duas blusas e as duas chegaram impecáveis. Qualidade premium e preço justo. Recomendo demais!"</blockquote>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">JF</div>
+              <div class="testimonial-author-info">
+                <strong>Juliana F.</strong>
+                <span>Curitiba, PR</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           FRETE
+      ══════════════════════════════════════════ -->
+      <section class="shipping-band reveal" id="frete">
+        <div>
+          <p class="eyebrow">Entrega</p>
+          <h2>Frete calculado pelo seu CEP.</h2>
+          <p>
+            Digite seu CEP para simular o valor e prazo de entrega.
+            Frete grátis para compras acima de R$&nbsp;399.
+            Pedidos enviados em até 2 dias úteis após a confirmação.
+          </p>
+        </div>
+        <form class="shipping-form" id="shippingForm">
+          <label>
+            CEP
+            <input id="cepInput" inputmode="numeric" maxlength="9" placeholder="00000-000" required autocomplete="postal-code" />
+          </label>
+          <button class="primary-button" type="submit" id="calcShippingBtn">Calcular Frete</button>
+          <output id="shippingResult">Adicione itens ao carrinho para simular o frete.</output>
+        </form>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           BENEFÍCIOS / POLÍTICAS
+      ══════════════════════════════════════════ -->
+      <section class="info-sections reveal" id="politicas" aria-label="Benefícios e políticas">
+        <article>
+          <span class="info-icon">💳</span>
+          <span class="info-label">Pagamento</span>
+          <h3>PIX, cartão e boleto</h3>
+          <p>
+            Aceitamos as principais formas de pagamento do Brasil.
+            Parcelamento disponível no cartão de crédito.
+          </p>
+        </article>
+        <article>
+          <span class="info-icon">🔄</span>
+          <span class="info-label">Trocas</span>
+          <h3>7 dias corridos</h3>
+          <p>
+            Solicitações após o recebimento, com produto sem uso,
+            etiqueta e embalagem originais preservadas.
+          </p>
+        </article>
+        <article>
+          <span class="info-icon">🔒</span>
+          <span class="info-label">Privacidade</span>
+          <h3>Dados protegidos</h3>
+          <p>
+            Seus dados são usados apenas para pagamento e entrega,
+            seguindo rigorosamente a LGPD.
+          </p>
+        </article>
+        <article>
+          <span class="info-icon">🌸</span>
+          <span class="info-label">Curadoria</span>
+          <h3>Seleção exclusiva</h3>
+          <p>
+            Cada peça e fragrância é cuidadosamente selecionada
+            para garantir qualidade e sofisticação.
+          </p>
+        </article>
+      </section>
+
+      <!-- ══════════════════════════════════════════
+           CONTATO / WHATSAPP
+      ══════════════════════════════════════════ -->
+      <section class="contact-section reveal" id="contato">
+        <div>
+          <p class="eyebrow">Atendimento</p>
+          <h2>Gostou de algo? Fale com a gente.</h2>
+          <p>
+            Nossa equipe está no WhatsApp para tirar dúvidas,
+            ajudar na escolha do tamanho e confirmar seu pedido.
+            Atendimento de segunda a sábado, das 9h às 20h.
+          </p>
+        </div>
+        <a class="whatsapp-btn" id="whatsLink" href="#" target="_blank" rel="noreferrer">
+          💬 Falar com Atendimento
+        </a>
+      </section>
+
+    </main>
+
+    <!-- ══════════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════════ -->
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/essenza-logo.png" alt="Essenza" />
+          <p>
+            Curadoria exclusiva em moda feminina e perfumaria,
+            feita para a mulher que valoriza elegância em cada detalhe.
+          </p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram" title="Instagram">IG</a>
+            <a href="#" aria-label="WhatsApp" title="WhatsApp">WA</a>
+            <a href="#" aria-label="Pinterest" title="Pinterest">PT</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Categorias</h4>
+          <ul>
+            <li><a href="#loja" data-category-link="Vestidos">Vestidos</a></li>
+            <li><a href="#loja" data-category-link="Blusas">Blusas &amp; Tops</a></li>
+            <li><a href="#loja" data-category-link="Calças">Calças</a></li>
+            <li><a href="#loja" data-category-link="Perfumes">Perfumes</a></li>
+            <li><a href="#loja" data-category-link="Acessórios">Acessórios</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Informações</h4>
+          <ul>
+            <li><a href="#politicas">Política de Trocas</a></li>
+            <li><a href="#politicas">Privacidade &amp; LGPD</a></li>
+            <li><a href="#frete">Calcular Frete</a></li>
+            <li><a href="#contato">Fale Conosco</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Atendimento</h4>
+          <ul>
+            <li><a href="#contato">WhatsApp</a></li>
+            <li><a href="#contato">Segunda a Sábado</a></li>
+            <li><a href="#contato">9h às 20h</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Essenza · Moda Feminina &amp; Perfumaria. Todos os direitos reservados.</p>
+        <div class="footer-legal">
+          <a href="#politicas">Política de Privacidade</a>
+          <a href="#politicas">Termos de Uso</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ── Botão flutuante WhatsApp ── -->
+    <a class="whatsapp-float" id="whatsFloat" href="#" target="_blank" rel="noreferrer" aria-label="Chamar no WhatsApp" title="WhatsApp">
+      💬
+    </a>
+
+    <!-- ── Scroll to top ── -->
+    <button class="scroll-top" id="scrollTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+    <!-- ── Toast container ── -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- ── Carrinho ── -->
+    <aside class="drawer" id="cartDrawer" aria-hidden="true" aria-label="Carrinho de compras">
+      <div class="drawer-panel">
+        <div class="drawer-header">
+          <h2>Meu Carrinho</h2>
+          <button class="icon-button" id="closeCart" type="button" aria-label="Fechar carrinho">✕</button>
+        </div>
+        <div class="drawer-body">
+          <div id="cartItems" class="cart-items"></div>
+          <form class="checkout-form" id="checkoutForm" style="margin-top:20px">
+            <p class="cart-section-title">Dados de entrega</p>
+            <label>Nome completo <input id="customerName" required autocomplete="name" /></label>
+            <label>CPF <input id="customerCpf" inputmode="numeric" placeholder="000.000.000-00" required /></label>
+            <label>Telefone <input id="customerPhone" inputmode="tel" required autocomplete="tel" /></label>
+            <label>CEP <input id="checkoutCep" inputmode="numeric" maxlength="9" required autocomplete="postal-code" /></label>
+            <label>Endereço <input id="customerAddress" required autocomplete="street-address" /></label>
+            <label>Número <input id="customerNumber" required /></label>
+            <label>
+              Forma de pagamento
+              <select id="paymentMethod">
+                <option>PIX</option>
+                <option>Cartão de crédito</option>
+                <option>Boleto</option>
+              </select>
+            </label>
+            <div class="totals">
+              <div><span>Subtotal</span><strong id="subtotalValue">R$ 0,00</strong></div>
+              <div><span>Frete</span><strong id="shippingValue">Calcule pelo CEP</strong></div>
+              <div class="grand-total"><span>Total</span><strong id="totalValue">R$ 0,00</strong></div>
+            </div>
+            <button class="primary-button" type="submit" style="width:100%">Finalizar Pedido →</button>
+            <p class="microcopy">O envio abre um resumo para finalização via WhatsApp. Pagamento real exige gateway conectado.</p>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Admin ── -->
+    <aside class="drawer" id="adminDrawer" aria-hidden="true" aria-label="Painel administrativo">
+      <div class="drawer-panel admin-panel">
+        <div class="drawer-header">
+          <h2>Admin Essenza</h2>
+          <button class="icon-button" id="closeAdmin" type="button" aria-label="Fechar painel admin">✕</button>
+        </div>
+        <div class="drawer-body">
+          <form class="admin-login" id="adminLogin">
+            <label>Senha do painel <input id="adminPassword" type="password" placeholder="Senha inicial: 2026" /></label>
+            <button class="primary-button" type="submit">Entrar</button>
+          </form>
+          <div class="admin-content" id="adminContent" hidden>
+            <form class="product-form" id="productForm">
+              <input type="hidden" id="productId" />
+              <label>Nome <input id="productName" required /></label>
+              <label>
+                Categoria
+                <select id="productCategory">
+                  <option>Perfumes</option>
+                  <option>Vestidos</option>
+                  <option>Blusas</option>
+                  <option>Calças</option>
+                  <option>Acessórios</option>
+                </select>
+              </label>
+              <label>Preço <input id="productPrice" type="number" min="0" step="0.01" required /></label>
+              <label>Peso em gramas <input id="productWeight" type="number" min="1" step="1" required /></label>
+              <label>Estoque <input id="productStock" type="number" min="0" step="1" required /></label>
+              <label>URL da foto <input id="productImage" type="url" placeholder="https://…" /></label>
+              <label>Descrição <textarea id="productDescription" rows="3" required></textarea></label>
+              <button class="primary-button" type="submit">Salvar produto</button>
+              <button class="secondary-button" id="resetProductForm" type="button">Novo produto</button>
+            </form>
+            <div style="margin-top:20px">
+              <h3>Produtos cadastrados</h3>
+              <div id="adminProductList" class="admin-list" style="margin-top:12px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Template do card de produto ── -->
+    <template id="productCardTemplate">
+      <article class="product-card">
+        <div class="product-image">
+          <div class="product-image-overlay"></div>
+        </div>
+        <div class="product-info">
+          <span class="product-category"></span>
+          <h3></h3>
+          <p></p>
+          <div class="product-meta">
+            <strong></strong>
+            <small></small>
+          </div>
+          <button class="primary-button" type="button">Adicionar ao Carrinho</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
