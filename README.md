@@ -21,8 +21,29 @@ Arquivos principais:
 Clique em `ADM` no topo do site.
 
 - Senha inicial: `2026`
-- Os produtos são salvos no navegador usando `localStorage`.
-- Para uma loja definitiva, troque esse armazenamento por banco de dados e login real.
+- Os produtos são salvos no banco de dados MySQL.
+- Configurações do banco:
+  - Banco: `u560112854_essenza_banco`
+  - Usuário: `u560112854_essenza`
+  - Senha: `Donadel@10`
+
+## Configuração do Banco de Dados
+
+Antes de publicar, configure o banco de dados MySQL:
+
+1. Acesse o phpMyAdmin da Hostinger
+2. Selecione o banco `u560112854_essenza_banco`
+3. Importe o arquivo `database.sql` para criar a tabela de produtos
+4. Verifique se o arquivo `api.php` está configurado com as credenciais corretas
+
+O arquivo `api.php` já está configurado com as credenciais fornecidas. Se precisar alterar, edite as linhas:
+
+```php
+$db_host = 'localhost';
+$db_name = 'u560112854_essenza_banco';
+$db_user = 'u560112854_essenza';
+$db_pass = 'Donadel@10';
+```
 
 ## Ajustes importantes antes de vender
 

@@ -4,7 +4,7 @@
    ============================================================ */
 
 const SITE_URL      = "https://essenzamodaeperfumaria.com";
-const STORE_KEY     = "essenza_products_v2";
+const API_URL       = "api.php";
 const CART_KEY      = "essenza_cart_v2";
 const ADMIN_PIN     = "2026";
 const WHATSAPP_NUMBER = "5500000000000"; // ← Altere para o número real: 55 + DDD + número
@@ -19,6 +19,14 @@ const fallbackImages = {
   Acessórios: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
   // Legado
   Roupas:     "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80",
+};
+
+const subcategoriesMap = {
+  Perfumes: ["Feminino", "Masculino", "Unissex"],
+  Vestidos: ["Vestidos Longos", "Vestidos Curtos", "Vestidos Midi", "Vestidos Florais"],
+  Blusas: ["T-Shirts", "Croppeds", "Blusas Sociais", "Regatas"],
+  Calças: ["Calça Jeans", "Calça Social", "Legging", "Shorts"],
+  Acessórios: []
 };
 
 /* ── Produtos padrão ── */
@@ -125,6 +133,7 @@ const els = {
   adminLogin:       document.querySelector("#adminLogin"),
   adminContent:     document.querySelector("#adminContent"),
   productForm:      document.querySelector("#productForm"),
+  productSubcategory: document.querySelector("#productSubcategory"),
   resetProductForm: document.querySelector("#resetProductForm"),
   adminProductList: document.querySelector("#adminProductList"),
   whatsLink:        document.querySelector("#whatsLink"),
@@ -139,15 +148,21 @@ const els = {
    PERSISTÊNCIA
    ============================================================ */
 
-function loadProducts() {
-  const saved = localStorage.getItem(STORE_KEY);
-  if (saved) return JSON.parse(saved).map(normalizeProduct);
-  localStorage.setItem(STORE_KEY, JSON.stringify(defaultProducts));
-  return defaultProducts;
+async function loadProducts() {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error('Erro ao carregar produtos');
+    const data = await response.json();
+    return data.map(normalizeProduct);
+  } catch (error) {
+    console.error('Erro ao carregar produtos do banco:', error);
+    // Fallback para produtos padrão em caso de erro
+    return defaultProducts;
+  }
 }
 
 function normalizeProduct(p) {
-  // Normaliza categorias legadas
+  // Normaliza categorias legadas e campos do banco
   const catMap = {
     "AcessÃ³rios": "Acessórios",
     "Acessórios": "Acessórios",
@@ -157,6 +172,9 @@ function normalizeProduct(p) {
   return {
     ...p,
     category: catMap[p.category] ?? p.category,
+    subcategory: p.subcategory ?? null,
+    isNew: p.is_new ?? p.isNew ?? false,
+    isBestSeller: p.is_best_seller ?? p.isBestSeller ?? false,
     description: p.description
       .replaceAll("confortÃ¡vel", "confortável")
       .replaceAll("vÃ¡rias", "várias")
@@ -170,7 +188,11 @@ function loadCart() {
   return saved ? JSON.parse(saved) : [];
 }
 
-function saveProducts() { localStorage.setItem(STORE_KEY, JSON.stringify(products)); }
+async function saveProducts() {
+  // Produtos são salvos diretamente no banco via API
+  // Esta função é mantida para compatibilidade, mas não faz nada
+}
+
 function saveCart()     { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
 
 /* ============================================================
@@ -267,7 +289,7 @@ function renderProducts() {
       card.appendChild(badge);
     }
 
-    catEl.textContent        = product.category;
+    catEl.textContent        = product.subcategory ? `${product.category} • ${product.subcategory}` : product.category;
     title.textContent        = product.name;
     desc.textContent         = product.description;
     price.textContent        = money.format(product.price);
@@ -467,7 +489,7 @@ function closeDrawer(drawer) {
    ADMIN
    ============================================================ */
 
-function renderAdminList() {
+async function renderAdminList() {
   els.adminProductList.innerHTML = "";
   products.forEach((product) => {
     const row = document.createElement("div");
@@ -484,13 +506,23 @@ function renderAdminList() {
     `;
     const [edit, del] = row.querySelectorAll("button");
     edit.addEventListener("click", () => fillProductForm(product));
-    del.addEventListener("click", () => {
+    del.addEventListener("click", async () => {
       if (!confirm(`Excluir "${product.name}"?`)) return;
-      products = products.filter((p) => p.id !== product.id);
-      cart     = cart.filter((l)     => l.productId !== product.id);
-      saveProducts(); saveCart();
-      renderProducts(); renderCart(); renderAdminList();
-      showToast("Produto excluído.", "🗑️");
+      try {
+        const response = await fetch(`${API_URL}/products/${product.id}`, {
+          method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Erro ao excluir produto');
+        
+        products = products.filter((p) => p.id !== product.id);
+        cart     = cart.filter((l)     => l.productId !== product.id);
+        saveCart();
+        renderProducts(); renderCart(); renderAdminList();
+        showToast("Produto excluído.", "🗑️");
+      } catch (error) {
+        console.error('Erro ao excluir produto:', error);
+        showToast("Erro ao excluir produto.", "⚠️");
+      }
     });
     els.adminProductList.appendChild(row);
   });
@@ -500,6 +532,8 @@ function fillProductForm(product) {
   document.querySelector("#productId").value          = product.id;
   document.querySelector("#productName").value        = product.name;
   document.querySelector("#productCategory").value    = product.category;
+  updateSubcategorySelect(product.category);
+  document.querySelector("#productSubcategory").value = product.subcategory || "";
   document.querySelector("#productPrice").value       = product.price;
   document.querySelector("#productWeight").value      = product.weight;
   document.querySelector("#productStock").value       = product.stock;
@@ -510,6 +544,7 @@ function fillProductForm(product) {
 function resetProductForm() {
   els.productForm.reset();
   document.querySelector("#productId").value = "";
+  updateSubcategorySelect(document.querySelector("#productCategory").value);
 }
 
 /* ============================================================
@@ -708,33 +743,73 @@ els.adminLogin.addEventListener("submit", (e) => {
 });
 
 // Salvar produto
-els.productForm.addEventListener("submit", (e) => {
+els.productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id      = document.querySelector("#productId").value || crypto.randomUUID();
   const product = {
     id,
     name:        document.querySelector("#productName").value.trim(),
     category:    document.querySelector("#productCategory").value,
+    subcategory: document.querySelector("#productSubcategory").value || null,
     price:       Number(document.querySelector("#productPrice").value),
     weight:      Number(document.querySelector("#productWeight").value),
     stock:       Number(document.querySelector("#productStock").value),
     image:       document.querySelector("#productImage").value.trim(),
     description: document.querySelector("#productDescription").value.trim(),
+    isNew:       false,
+    isBestSeller: false,
   };
 
   const exists = products.some((p) => p.id === id);
-  products = exists
-    ? products.map((p) => (p.id === id ? product : p))
-    : [product, ...products];
+  const method = exists ? 'PUT' : 'POST';
+  const url = exists ? `${API_URL}/products/${id}` : `${API_URL}/products`;
 
-  saveProducts();
-  resetProductForm();
-  renderProducts();
-  renderAdminList();
-  showToast(exists ? "Produto atualizado!" : "Produto adicionado!", "✓");
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(product),
+    });
+
+    if (!response.ok) throw new Error('Erro ao salvar produto');
+
+    // Atualizar estado local
+    products = exists
+      ? products.map((p) => (p.id === id ? product : p))
+      : [product, ...products];
+
+    resetProductForm();
+    renderProducts();
+    renderAdminList();
+    showToast(exists ? "Produto atualizado!" : "Produto adicionado!", "✓");
+  } catch (error) {
+    console.error('Erro ao salvar produto:', error);
+    showToast("Erro ao salvar produto.", "⚠️");
+  }
 });
 
 els.resetProductForm.addEventListener("click", resetProductForm);
+
+function updateSubcategorySelect(category) {
+  if (!els.productSubcategory) return;
+  els.productSubcategory.innerHTML = '<option value="">Nenhuma</option>';
+  const list = subcategoriesMap[category] || [];
+  list.forEach((sub) => {
+    const opt = document.createElement("option");
+    opt.value = sub;
+    opt.textContent = sub;
+    els.productSubcategory.appendChild(opt);
+  });
+}
+
+if (document.querySelector("#productCategory")) {
+  document.querySelector("#productCategory").addEventListener("change", (e) => {
+    updateSubcategorySelect(e.target.value);
+  });
+  updateSubcategorySelect(document.querySelector("#productCategory").value);
+}
 
 /* ============================================================
    WHATSAPP
@@ -748,7 +823,12 @@ els.whatsFloat.href = waHref;
    INICIALIZAÇÃO
    ============================================================ */
 
-renderProducts();
-renderCart();
-updateFreeshipBar();
-observeReveal();
+async function init() {
+  products = await loadProducts();
+  renderProducts();
+  renderCart();
+  updateFreeshipBar();
+  observeReveal();
+}
+
+init();
