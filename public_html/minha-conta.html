@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Área do cliente Essenza. Gerencie seus dados pessoais, endereços, favoritos e acompanhe seus pedidos e rastreamento em tempo real."
+    />
+    <meta name="theme-color" content="#111111" />
+    <title>Minha Conta | Essenza</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://viacep.com.br" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="css/account.css" />
+  </head>
+  <body>
+
+    <!-- ── Barra de promoção ── -->
+    <div class="promo-bar" id="promoBar">
+      <span>🚚 <strong>Frete grátis</strong> em compras acima de R$&nbsp;399 para todo o Brasil</span>
+      <span>•</span>
+      <span>✨ Nova Coleção Inverno 2026 disponível</span>
+    </div>
+
+    <!-- ── Header ── -->
+    <header class="site-header" id="inicio">
+      <a class="brand" href="/" aria-label="Essenza — início">
+        <img src="assets/essenza-symbol.png" alt="Essenza Moda Feminina &amp; Perfumaria" />
+      </a>
+
+      <nav class="desktop-nav" aria-label="Navegação principal">
+        <a href="/#loja" data-category-link="Vestidos">Vestidos</a>
+        <a href="/#loja" data-category-link="Blusas">Blusas</a>
+        <a href="/#loja" data-category-link="Calças">Calças</a>
+        <a href="/#loja" data-category-link="Perfumes">Perfumes</a>
+        <a href="/#loja" data-category-link="Acessórios">Acessórios</a>
+        <a href="/#frete">Frete</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Ícone de usuário -->
+        <div class="user-menu-wrap">
+          <button class="icon-button user-menu-btn" id="userMenuBtn" type="button" aria-label="Menu do usuário" title="Minha conta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="user-dropdown-header">
+              <strong class="user-dropdown-name">Visitante</strong>
+              <span class="user-dropdown-email"></span>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <a href="/minha-conta.html" class="user-dropdown-item active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Minha Conta
+            </a>
+            <a href="/minha-conta.html#pedidos" class="user-dropdown-item" data-tab-switch="orders">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              Meus Pedidos
+            </a>
+            <a href="/minha-conta.html#enderecos" class="user-dropdown-item" data-tab-switch="addresses">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Endereços
+            </a>
+            <a href="/minha-conta.html#favoritos" class="user-dropdown-item" data-tab-switch="favorites">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Favoritos
+            </a>
+            <a href="/admin.html" class="user-dropdown-item" id="adminNavLink" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+              Painel Admin
+            </a>
+            <div class="user-dropdown-divider"></div>
+            <a href="#" class="user-dropdown-item user-dropdown-logout" id="logoutBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              Sair
+            </a>
+          </div>
+        </div>
+
+        <!-- Carrinho -->
+        <div class="cart-btn-wrap">
+          <button class="cart-button" id="openCart" type="button" aria-label="Abrir carrinho">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            <span class="cart-badge" id="cartCount" style="display:none">0</span>
+          </button>
+          <!-- Mini Cart -->
+          <div class="mini-cart" id="miniCart">
+            <div class="mini-cart-header">
+              <strong>Meu Carrinho</strong>
+            </div>
+            <div class="mini-cart-body" id="miniCartItems"></div>
+            <div class="mini-cart-footer">
+              <div class="mini-cart-subtotal">
+                <span>Subtotal</span>
+                <strong id="miniCartSubtotal">R$ 0,00</strong>
+              </div>
+              <button class="primary-button mini-cart-btn" type="button" onclick="EssenzaCart.openDrawer()">Ver Carrinho</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Conteúdo Principal ── -->
+    <main class="account-container">
+      <header class="account-header">
+        <div class="account-profile-summary">
+          <div class="account-avatar" id="profileAvatar">..</div>
+          <div>
+            <h1 id="profileName">Carregando...</h1>
+            <p>Cliente Essenza desde <span id="profileSince">...</span></p>
+          </div>
+        </div>
+      </header>
+
+      <div class="account-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="account-sidebar">
+          <nav aria-label="Menu da conta">
+            <button class="account-tab active" data-tab="panelProfile" id="tabProfile" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Dados Pessoais
+            </button>
+            <button class="account-tab" data-tab="panelOrders" id="tabOrders" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              Meus Pedidos
+            </button>
+            <button class="account-tab" data-tab="panelAddresses" id="tabAddresses" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Endereços de Entrega
+            </button>
+            <button class="account-tab" data-tab="panelFavorites" id="tabFavorites" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Lista de Favoritos
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Main Panels Content -->
+        <section class="account-content">
+
+          <!-- Painel: Perfil -->
+          <article class="account-panel active" id="panelProfile">
+            <div class="panel-header">
+              <h2>Dados Pessoais</h2>
+              <button class="secondary-button" id="editProfileBtn" type="button">Editar Perfil</button>
+            </div>
+
+            <div class="profile-details">
+              <div class="detail-group">
+                <span class="detail-label">E-mail cadastrado</span>
+                <span class="detail-val" id="profileEmail">...</span>
+              </div>
+              <div class="detail-group">
+                <span class="detail-label">CPF</span>
+                <span class="detail-val" id="profileCpf">...</span>
+              </div>
+              <div class="detail-group">
+                <span class="detail-label">Telefone</span>
+                <span class="detail-val" id="profilePhone">...</span>
+              </div>
+            </div>
+
+            <!-- Formulário Editar Perfil (Oculto por padrão) -->
+            <form id="editProfileForm" class="edit-profile-form" style="display: none;">
+              <h3>Atualizar Meus Dados</h3>
+              <div class="form-row">
+                <label>
+                  Nome Completo
+                  <input id="editName" type="text" required />
+                </label>
+              </div>
+              <div class="form-row">
+                <label>
+                  E-mail
+                  <input id="editEmail" type="email" required />
+                </label>
+                <label>
+                  Telefone
+                  <input id="editPhone" type="tel" data-mask="phone" placeholder="(00) 00000-0000" />
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Salvar Alterações</button>
+              </div>
+            </form>
+          </article>
+
+          <!-- Painel: Pedidos -->
+          <article class="account-panel" id="panelOrders">
+            <div class="panel-header">
+              <h2>Meus Pedidos</h2>
+            </div>
+            <div class="orders-list" id="ordersList">
+              <p class="empty-state">Buscando histórico de pedidos...</p>
+            </div>
+          </article>
+
+          <!-- Painel: Endereços -->
+          <article class="account-panel" id="panelAddresses">
+            <div class="panel-header">
+              <h2>Endereços Salvos</h2>
+              <button class="secondary-button" id="addAddressBtn" type="button">+ Novo Endereço</button>
+            </div>
+
+            <div class="address-grid" id="addressList">
+              <p class="empty-state">Carregando endereços...</p>
+            </div>
+
+            <!-- Formulário Novo/Editar Endereço (Oculto por padrão) -->
+            <form id="addressForm" class="address-form" style="display: none;">
+              <h3 id="addressFormTitle">Endereço de Entrega</h3>
+              <input type="hidden" id="addrId" />
+              
+              <div class="form-row">
+                <label style="flex: 2;">
+                  Identificação (ex: Casa, Trabalho)
+                  <input id="addrLabel" type="text" placeholder="Casa" required />
+                </label>
+                <label style="flex: 3;">
+                  Nome do Destinatário
+                  <input id="addrRecipient" type="text" required />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label style="flex: 2;">
+                  CEP
+                  <input id="addrZip" type="text" placeholder="00000-000" required maxlength="9" />
+                </label>
+                <label style="flex: 3;">
+                  Rua / Logradouro
+                  <input id="addrStreet" type="text" required />
+                </label>
+                <label style="flex: 1;">
+                  Número
+                  <input id="addrNumber" type="text" required />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label style="flex: 2;">
+                  Complemento (opcional)
+                  <input id="addrComplement" type="text" placeholder="Apto 45, Bloco B" />
+                </label>
+                <label style="flex: 2;">
+                  Bairro
+                  <input id="addrNeighborhood" type="text" required />
+                </label>
+                <label style="flex: 2;">
+                  Cidade
+                  <input id="addrCity" type="text" required />
+                </label>
+                <label style="flex: 1;">
+                  UF (Estado)
+                  <input id="addrState" type="text" required maxlength="2" />
+                </label>
+              </div>
+
+              <div class="form-row" style="margin-top: 15px;">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="addrDefault" />
+                  Definir como endereço principal para entrega
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Salvar Endereço</button>
+                <button class="secondary-button" id="cancelAddressBtn" type="button">Cancelar</button>
+              </div>
+            </form>
+          </article>
+
+          <!-- Painel: Favoritos -->
+          <article class="account-panel" id="panelFavorites">
+            <div class="panel-header">
+              <h2>Lista de Favoritos</h2>
+            </div>
+            <div class="favorites-grid" id="favoritesList">
+              <p class="empty-state">Carregando favoritos...</p>
+            </div>
+          </article>
+
+        </section>
+      </div>
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/essenza-logo.png" alt="Essenza" />
+          <p>
+            Curadoria exclusiva em moda feminina e perfumaria,
+            feita para a mulher que valoriza elegância em cada detalhe.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Categorias</h4>
+          <ul>
+            <li><a href="/#loja" data-category-link="Vestidos">Vestidos</a></li>
+            <li><a href="/#loja" data-category-link="Blusas">Blusas &amp; Tops</a></li>
+            <li><a href="/#loja" data-category-link="Calças">Calças</a></li>
+            <li><a href="/#loja" data-category-link="Perfumes">Perfumes</a></li>
+            <li><a href="/#loja" data-category-link="Acessórios">Acessórios</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Minha Conta</h4>
+          <ul>
+            <li><a href="/minha-conta.html">Meus Dados</a></li>
+            <li><a href="/minha-conta.html#pedidos" data-tab-switch="orders">Meus Pedidos</a></li>
+            <li><a href="/minha-conta.html#enderecos" data-tab-switch="addresses">Endereços</a></li>
+            <li><a href="/minha-conta.html#favoritos" data-tab-switch="favorites">Favoritos</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Atendimento</h4>
+          <ul>
+            <li><a href="/#contato">WhatsApp</a></li>
+            <li><a href="/#contato">Segunda a Sábado</a></li>
+            <li><a href="/#contato">9h às 20h</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Essenza · Moda Feminina &amp; Perfumaria. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+
+    <!-- Modais de Autenticação para fallback caso deslogado -->
+    <div class="modal-overlay" id="loginModal" style="display:none">
+      <div class="modal-card">
+        <div class="modal-header">
+          <img src="assets/essenza-symbol.png" alt="" class="modal-logo" />
+          <h2>Entrar na sua conta</h2>
+        </div>
+        <form id="loginForm" class="modal-form">
+          <div class="form-error"></div>
+          <label>
+            E-mail ou CPF
+            <input id="loginIdentifier" type="text" placeholder="seu@email.com ou 000.000.000-00" required autocomplete="username" />
+          </label>
+          <label>
+            Senha
+            <input id="loginPassword" type="password" placeholder="Sua senha" required autocomplete="current-password" />
+          </label>
+          <button class="primary-button" type="submit" style="width:100%">Entrar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Botão flutuante WhatsApp ── -->
+    <a class="whatsapp-float" id="whatsFloat" href="#" target="_blank" rel="noreferrer" aria-label="Chamar no WhatsApp" title="WhatsApp">💬</a>
+
+    <!-- ── Scroll to top ── -->
+    <button class="scroll-top" id="scrollTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+    <!-- ── Toast container ── -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- ── Carrinho Drawer ── -->
+    <aside class="drawer" id="cartDrawer" aria-hidden="true" aria-label="Carrinho de compras">
+      <div class="drawer-panel">
+        <div class="drawer-header">
+          <h2>Meu Carrinho</h2>
+          <button class="icon-button" id="closeCart" type="button" aria-label="Fechar carrinho">✕</button>
+        </div>
+        <div class="drawer-body">
+          <div id="cartItems" class="cart-items"></div>
+          <form class="checkout-form" id="checkoutForm" style="margin-top:20px">
+            <p class="cart-section-title">Dados de entrega</p>
+            <label>Nome completo <input id="customerName" required autocomplete="name" /></label>
+            <label>CPF <input id="customerCpf" inputmode="numeric" placeholder="000.000.000-00" required data-mask="cpf" /></label>
+            <label>Telefone <input id="customerPhone" inputmode="tel" required autocomplete="tel" data-mask="phone" /></label>
+            <label>CEP <input id="checkoutCep" inputmode="numeric" maxlength="9" required autocomplete="postal-code" /></label>
+            <label>Endereço <input id="customerAddress" required autocomplete="street-address" /></label>
+            <label>Número <input id="customerNumber" required /></label>
+            <label>
+              Forma de pagamento
+              <select id="paymentMethod">
+                <option>PIX</option>
+                <option>Cartão de crédito</option>
+                <option>Boleto</option>
+              </select>
+            </label>
+            <div class="totals">
+              <div><span>Subtotal</span><strong id="subtotalValue">R$ 0,00</strong></div>
+              <div><span>Frete</span><strong id="shippingValue">Calcule pelo CEP</strong></div>
+              <div class="grand-total"><span>Total</span><strong id="totalValue">R$ 0,00</strong></div>
+            </div>
+            <button class="primary-button" type="submit" style="width:100%">Finalizar Pedido →</button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/account.js"></script>
+    <script>
+      // Permite navegação direta a abas por link hash
+      document.addEventListener('DOMContentLoaded', () => {
+        // Função auxiliar para mudar aba ativa
+        const switchTab = (tabId) => {
+          const tabButton = document.getElementById(tabId);
+          if (tabButton) {
+            tabButton.click();
+            tabButton.scrollIntoView({ behavior: 'smooth' });
+          }
+        };
+
+        // Escuta hashes
+        const handleHash = () => {
+          const hash = window.location.hash;
+          if (hash === '#pedidos') switchTab('tabOrders');
+          if (hash === '#enderecos') switchTab('tabAddresses');
+          if (hash === '#favoritos') switchTab('tabFavorites');
+          if (hash === '#dados') switchTab('tabProfile');
+        };
+
+        window.addEventListener('hashchange', handleHash);
+        // Pequeno atraso para dar tempo ao loadAll()
+        setTimeout(handleHash, 500);
+
+        // Suporte a cliques na dropdown do menu que não alteram a página mas apenas a aba
+        document.querySelectorAll('[data-tab-switch]').forEach(el => {
+          el.addEventListener('click', (e) => {
+            const tabName = el.getAttribute('data-tab-switch');
+            if (tabName === 'orders') switchTab('tabOrders');
+            if (tabName === 'addresses') switchTab('tabAddresses');
+            if (tabName === 'favorites') switchTab('tabFavorites');
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

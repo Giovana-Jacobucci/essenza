@@ -1,0 +1,10 @@
+# Bloquear acesso direto a todos os arquivos PHP neste diretório
+<Files "*.php">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</Files>

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Painel de controle administrativo da Essenza. Gerenciamento de pedidos, produtos, clientes e relatórios de vendas."
+    />
+    <meta name="theme-color" content="#111111" />
+    <title>Painel Administrativo | Essenza</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body class="admin-body">
+
+    <!-- Header do Admin -->
+    <header class="admin-header">
+      <div class="admin-header-left">
+        <a class="admin-brand" href="/">
+          <img src="assets/essenza-symbol.png" alt="Essenza" />
+          <span>Painel Admin</span>
+        </a>
+      </div>
+      <div class="admin-header-right">
+        <span class="admin-user-welcome" id="adminUserWelcome">Olá, Administrador</span>
+        <a href="/" class="admin-exit-btn">Voltar para a Loja ➔</a>
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <!-- Sidebar Navigation -->
+      <aside class="admin-sidebar">
+        <nav aria-label="Menu administrativo">
+          <button class="admin-nav-item active" data-section="adminDashboard" id="navDashboard" type="button">
+            📊 Dashboard
+          </button>
+          <button class="admin-nav-item" data-section="adminOrders" id="navOrders" type="button">
+            📦 Pedidos
+          </button>
+          <button class="admin-nav-item" data-section="adminProducts" id="navProducts" type="button">
+            👗 Produtos
+          </button>
+          <button class="admin-nav-item" data-section="adminCustomers" id="navCustomers" type="button">
+            👥 Clientes
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Content Sections -->
+      <main class="admin-main">
+        <h1>Painel Administrativo</h1>
+
+        <!-- ==================== SECTION: DASHBOARD ==================== -->
+        <section class="admin-section active" id="adminDashboard">
+          <!-- Cards de Métricas -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-title">Faturamento Total</span>
+              <strong class="stat-value" id="statRevenue">R$ 0,00</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Pedidos Registrados</span>
+              <strong class="stat-value" id="statOrders">0</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Faturamento Mensal</span>
+              <strong class="stat-value" id="statMonthlyRevenue">R$ 0,00</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Pedidos no Mês</span>
+              <strong class="stat-value" id="statMonthlyOrders">0</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Clientes Cadastrados</span>
+              <strong class="stat-value" id="statCustomers">0</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-title">Total de Produtos</span>
+              <strong class="stat-value" id="statProducts">0</strong>
+            </div>
+          </div>
+
+          <!-- Gráfico & Alertas -->
+          <div class="dashboard-grid">
+            <!-- Gráfico de Faturamento CSS -->
+            <div class="dashboard-card">
+              <h3>Faturamento por Mês</h3>
+              <div class="chart-wrapper">
+                <div class="monthly-chart" id="monthlyChart">
+                  <p class="empty-state">Aguardando dados...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estoque Baixo -->
+            <div class="dashboard-card">
+              <h3>Estoque Baixo (≤ 5 unidades)</h3>
+              <div class="low-stock-list" id="lowStockList">
+                <p class="empty-state">Todos os produtos estão com bom estoque.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pedidos Recentes -->
+          <div class="dashboard-card" style="margin-top: 30px;">
+            <h3>Últimos Pedidos Recebidos</h3>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Nº Pedido</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody id="recentOrders">
+                  <tr>
+                    <td colspan="5" class="empty-state">Buscando pedidos recentes...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== SECTION: PEDIDOS ==================== -->
+        <section class="admin-section" id="adminOrders">
+          <div class="section-header">
+            <h2>Gestão de Pedidos</h2>
+          </div>
+
+          <!-- Filtros de Pedidos -->
+          <div class="filters-bar">
+            <label style="flex: 2;">
+              Buscar por Cliente ou Nº Pedido
+              <input id="filterSearch" type="text" placeholder="Nome, email, CPF ou número..." />
+            </label>
+            <label style="flex: 1.5;">
+              Status
+              <select id="filterStatus">
+                <option value="">Todos os Status</option>
+                <option value="pending_payment">Aguardando Pagamento</option>
+                <option value="paid">Pago</option>
+                <option value="processing">Em Separação</option>
+                <option value="shipped">Enviado</option>
+                <option value="out_for_delivery">Saiu para Entrega</option>
+                <option value="delivered">Entregue</option>
+                <option value="cancelled">Cancelado</option>
+              </select>
+            </label>
+            <label style="flex: 1;">
+              De
+              <input id="filterDateFrom" type="date" />
+            </label>
+            <label style="flex: 1;">
+              Até
+              <input id="filterDateTo" type="date" />
+            </label>
+            <button class="primary-button" id="applyOrderFilters" type="button" style="margin-top: auto; height: 46px;">Filtrar</button>
+          </div>
+
+          <!-- Tabela de Pedidos -->
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nº Pedido</th>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Total</th>
+                  <th>Pagamento</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTable">
+                <tr>
+                  <td colspan="6" class="empty-state">Carregando pedidos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="ordersPagination"></div>
+        </section>
+
+        <!-- ==================== SECTION: PRODUTOS ==================== -->
+        <section class="admin-section" id="adminProducts">
+          <div class="section-header">
+            <h2>Gestão de Catálogo</h2>
+            <button class="primary-button" id="addProductBtn" type="button">+ Novo Produto</button>
+          </div>
+
+          <!-- Busca de Produtos -->
+          <div class="filters-bar">
+            <label style="flex: 1;">
+              Buscar produto por nome ou SKU
+              <input id="productSearch" type="text" placeholder="Digite para buscar..." />
+            </label>
+          </div>
+
+          <!-- Formulário Criar/Editar Produto (Oculto por padrão) -->
+          <form id="adminProductForm" class="admin-form" style="display: none;">
+            <h3>Dados do Produto</h3>
+            <input type="hidden" id="pId" />
+            
+            <div class="form-row">
+              <label style="flex: 1;">
+                SKU
+                <input id="pSku" type="text" placeholder="ESS-0001" required />
+              </label>
+              <label style="flex: 3;">
+                Nome do Produto
+                <input id="pName" type="text" placeholder="Vestido Midi Seda Floral" required />
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label>
+                Preço (R$)
+                <input id="pPrice" type="number" step="0.01" min="0" required />
+              </label>
+              <label>
+                Peso (gramas)
+                <input id="pWeight" type="number" min="0" placeholder="300" required />
+              </label>
+              <label>
+                Estoque
+                <input id="pStock" type="number" min="0" placeholder="10" required />
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label style="flex: 1;">
+                URL da Imagem
+                <input id="pImage" type="url" placeholder="https://exemplo.com/imagem.jpg" required />
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label>
+                Descrição Detalhada
+                <textarea id="pDescription" rows="4" placeholder="Detalhes do produto..." required></textarea>
+              </label>
+            </div>
+
+            <div class="form-row checkbox-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="pNew" />
+                Novidade (Exibir tag Novo)
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="pBestSeller" />
+                Mais Vendido (Exibir em Destaque)
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button class="primary-button" type="submit">Salvar Produto</button>
+              <button class="secondary-button" id="cancelProductBtn" type="button">Cancelar</button>
+            </div>
+          </form>
+
+          <!-- Tabela de Produtos -->
+          <div class="table-responsive" style="margin-top: 20px;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Produto</th>
+                  <th>Categoria</th>
+                  <th>Preço</th>
+                  <th>Estoque</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="productsTable">
+                <tr>
+                  <td colspan="6" class="empty-state">Carregando produtos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="productsPagination"></div>
+        </section>
+
+        <!-- ==================== SECTION: CLIENTES ==================== -->
+        <section class="admin-section" id="adminCustomers">
+          <div class="section-header">
+            <h2>Clientes Cadastrados</h2>
+          </div>
+
+          <!-- Busca de Clientes -->
+          <div class="filters-bar">
+            <label style="flex: 1;">
+              Buscar cliente por nome, e-mail ou CPF
+              <input id="customerSearch" type="text" placeholder="Digite para buscar..." />
+            </label>
+          </div>
+
+          <!-- Tabela de Clientes -->
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nome Completo</th>
+                  <th>E-mail</th>
+                  <th>CPF</th>
+                  <th>Telefone</th>
+                  <th>Data de Cadastro</th>
+                </tr>
+              </thead>
+              <tbody id="customersTable">
+                <tr>
+                  <td colspan="5" class="empty-state">Carregando clientes...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="customersPagination"></div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Modal de Detalhes do Pedido e Alteração de Status -->
+    <div class="modal-overlay" id="orderModal">
+      <div class="modal-card modal-card-lg">
+        <button class="modal-close" data-close-modal="orderModal" aria-label="Fechar">✕</button>
+        <div class="modal-body">
+          <!-- Injetado dinamicamente via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Toast container para notificações ── -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+      // Atualizar nome do usuário logado no Header do Admin
+      document.addEventListener('DOMContentLoaded', () => {
+        const waitForUser = setInterval(() => {
+          const user = EssenzaAuth.getUser();
+          if (user) {
+            clearInterval(waitForUser);
+            const welcome = document.getElementById('adminUserWelcome');
+            if (welcome) welcome.textContent = `Olá, ${user.name.split(' ')[0]}`;
+          }
+        }, 200);
+        setTimeout(() => clearInterval(waitForUser), 5000);
+      });
+    </script>
+  </body>
+</html>

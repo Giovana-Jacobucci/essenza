@@ -1,0 +1,4 @@
+serve-local-db.json
+server.log
+server-error.log
+.gemini/

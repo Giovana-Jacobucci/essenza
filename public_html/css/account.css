@@ -1,0 +1,756 @@
+/* ============================================================
+   ESSENZA — Client Dashboard CSS
+   ============================================================ */
+
+.account-container {
+  max-width: 1300px;
+  margin: 40px auto;
+  padding: 0 24px;
+  min-height: 60vh;
+}
+
+.account-header {
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+}
+
+.account-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.account-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--gold-dark);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+.account-profile-summary h1 {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.account-profile-summary p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-family: var(--font-sans);
+}
+
+.account-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .account-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+
+/* ── Sidebar Navigation ── */
+.account-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+
+@media (max-width: 900px) {
+  .account-sidebar nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+}
+
+.account-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-left: 2px solid transparent;
+}
+
+@media (max-width: 900px) {
+  .account-tab {
+    width: auto;
+    flex: 1 1 auto;
+    justify-content: center;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+.account-tab:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+
+.account-tab.active {
+  background: white;
+  color: var(--gold-dark);
+  border-left-color: var(--gold-dark);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 900px) {
+  .account-tab.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--gold-dark);
+  }
+}
+
+.account-tab svg {
+  stroke: currentColor;
+  transition: transform 0.3s;
+}
+
+.account-tab:hover svg {
+  transform: translateX(2px);
+}
+
+@media (max-width: 900px) {
+  .account-tab:hover svg {
+    transform: none;
+  }
+}
+
+/* ── Panels ── */
+.account-panel {
+  display: none;
+  background: white;
+  border: 1px solid var(--line);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.account-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--soft);
+  padding-bottom: 16px;
+}
+
+.panel-header h2 {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  color: var(--ink);
+}
+
+/* ── Dados Pessoais / Perfil ── */
+.profile-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--soft);
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.detail-val {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.edit-profile-form, .address-form {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--soft);
+}
+
+.edit-profile-form h3, .address-form h3 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.form-row label, .edit-profile-form label, .address-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  flex: 1;
+}
+
+.form-row input, .form-row select, .edit-profile-form input, .address-form input {
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.form-row input:focus, .form-row select:focus, .edit-profile-form input:focus, .address-form input:focus {
+  border-color: var(--gold-dark);
+  background: white;
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+  cursor: pointer;
+  text-transform: none !important;
+  font-size: 0.85rem !important;
+}
+
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* ── Endereços ── */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.address-card {
+  border: 1px solid var(--line);
+  padding: 20px;
+  position: relative;
+  background: var(--surface);
+  transition: all 0.3s ease;
+}
+
+.address-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--gold);
+}
+
+.address-card.address-default {
+  border: 2px solid var(--gold);
+  background: white;
+}
+
+.address-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.address-label {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+.badge-default {
+  font-size: 0.65rem;
+  background: var(--gold-glow);
+  color: var(--gold-dark);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 700;
+  margin-left: 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.address-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.address-actions button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+  padding: 4px;
+}
+
+.address-actions button:hover {
+  color: var(--wine);
+}
+
+.address-card p {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+/* ── Pedidos ── */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-card {
+  border: 1px solid var(--line);
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  cursor: pointer;
+  user-select: none;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.order-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-card-info strong {
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.order-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.order-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.order-total {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.order-payment {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.order-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+}
+
+.status-pending_payment { background: var(--soft); color: var(--ink-soft); }
+.status-paid { background: rgba(46, 125, 90, 0.12); color: var(--success); }
+.status-processing { background: var(--gold-glow); color: var(--gold-dark); }
+.status-shipped { background: rgba(139, 46, 74, 0.08); color: var(--wine); }
+.status-out_for_delivery { background: rgba(201, 151, 60, 0.2); color: var(--gold-dark); }
+.status-delivered { background: rgba(46, 125, 90, 0.12); color: var(--success); }
+.status-cancelled { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+
+.order-chevron {
+  font-size: 1.2rem;
+  color: var(--muted);
+  transition: transform 0.3s ease;
+}
+
+.order-card-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s;
+  border-top: 0 solid var(--line);
+  padding: 0 24px;
+  background: var(--surface);
+}
+
+.order-card-detail.open {
+  max-height: 2000px;
+  border-top-width: 1px;
+  padding: 24px;
+}
+
+/* ── Detalhes do Pedido Expandido ── */
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 800px) {
+  .order-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.order-detail-grid h4 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--soft);
+}
+
+.order-item-img {
+  width: 50px;
+  height: 50px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--soft);
+}
+
+.order-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.order-item-info strong {
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+.order-item-sku {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.order-item-info span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.order-item-total {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.order-detail-totals {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-detail-totals div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.order-detail-totals div.grand-total {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.timeline-step {
+  display: flex;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-step::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 28px;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+
+.timeline-step:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-step:last-child::before {
+  display: none;
+}
+
+.timeline-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  z-index: 2;
+  color: var(--muted);
+}
+
+.timeline-step.completed .timeline-dot {
+  background: var(--gold-glow);
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+.timeline-step.completed.current .timeline-dot {
+  box-shadow: 0 0 0 4px var(--gold-glow);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(201, 151, 60, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(201, 151, 60, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(201, 151, 60, 0); }
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-content strong {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.timeline-step.completed .timeline-content strong {
+  color: var(--ink);
+}
+
+.timeline-content span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.timeline-step.cancelled .timeline-dot {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.timeline-step.cancelled .timeline-content strong {
+  color: #dc3545;
+}
+
+.delivery-estimate {
+  font-size: 0.85rem;
+  color: var(--gold-dark);
+  background: var(--gold-glow);
+  padding: 12px;
+  margin-bottom: 24px;
+  border-left: 3px solid var(--gold);
+}
+
+.order-detail-address p {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* ── Favoritos ── */
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.favorite-card {
+  border: 1px solid var(--line);
+  background: white;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.favorite-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--gold);
+}
+
+.favorite-img {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--soft);
+}
+
+.favorite-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.favorite-cat {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.favorite-info strong {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.favorite-price {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold-dark);
+}
+
+.favorite-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+  font-size: 0.8rem;
+}
+
+.favorite-remove:hover {
+  background: var(--wine);
+  color: white;
+}
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+}

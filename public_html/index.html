@@ -11,7 +11,6 @@
     <title>Essenza | Moda Feminina &amp; Perfumaria</title>
     <link rel="canonical" href="https://essenzamodaeperfumaria.com/" />
     <meta property="og:url" content="https://essenzamodaeperfumaria.com/" />
-    <base href="https://essenzamodaeperfumaria.com/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://viacep.com.br" />
@@ -28,7 +27,7 @@
 
     <!-- ── Header ── -->
     <header class="site-header" id="inicio">
-      <a class="brand" href="#inicio" aria-label="Essenza — início">
+      <a class="brand" href="/" aria-label="Essenza — início">
         <img src="assets/essenza-symbol.png" alt="Essenza Moda Feminina &amp; Perfumaria" />
       </a>
 
@@ -73,12 +72,70 @@
       </nav>
 
       <div class="header-actions">
-        <button class="icon-button" id="openAdmin" type="button" aria-label="Abrir painel admin" title="Painel Admin">
-          ADM
-        </button>
-        <button class="cart-button" id="openCart" type="button" aria-label="Abrir carrinho">
-          Carrinho <span id="cartCount">0</span>
-        </button>
+        <!-- Ícone de usuário -->
+        <div class="user-menu-wrap">
+          <button class="icon-button user-menu-btn" id="userMenuBtn" type="button" aria-label="Menu do usuário" title="Minha conta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="user-dropdown-header">
+              <strong class="user-dropdown-name">Visitante</strong>
+              <span class="user-dropdown-email"></span>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <a href="/minha-conta.html" class="user-dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Minha Conta
+            </a>
+            <a href="/minha-conta.html#pedidos" class="user-dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              Meus Pedidos
+            </a>
+            <a href="/minha-conta.html#enderecos" class="user-dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Endereços
+            </a>
+            <a href="/minha-conta.html#favoritos" class="user-dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Favoritos
+            </a>
+            <a href="/admin.html" class="user-dropdown-item" id="adminNavLink" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+              Painel Admin
+            </a>
+            <div class="user-dropdown-divider"></div>
+            <a href="#" class="user-dropdown-item user-dropdown-logout" id="logoutBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              Sair
+            </a>
+          </div>
+        </div>
+
+        <!-- Carrinho -->
+        <div class="cart-btn-wrap">
+          <button class="cart-button" id="openCart" type="button" aria-label="Abrir carrinho">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            <span class="cart-badge" id="cartCount" style="display:none">0</span>
+          </button>
+          <!-- Mini Cart -->
+          <div class="mini-cart" id="miniCart">
+            <div class="mini-cart-header">
+              <strong>Meu Carrinho</strong>
+            </div>
+            <div class="mini-cart-body" id="miniCartItems"></div>
+            <div class="mini-cart-footer">
+              <div class="mini-cart-subtotal">
+                <span>Subtotal</span>
+                <strong id="miniCartSubtotal">R$ 0,00</strong>
+              </div>
+              <button class="primary-button mini-cart-btn" type="button" onclick="EssenzaCart.openDrawer()">Ver Carrinho</button>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -317,37 +374,25 @@
           <span class="info-icon">💳</span>
           <span class="info-label">Pagamento</span>
           <h3>PIX, cartão e boleto</h3>
-          <p>
-            Aceitamos as principais formas de pagamento do Brasil.
-            Parcelamento disponível no cartão de crédito.
-          </p>
+          <p>Aceitamos as principais formas de pagamento do Brasil. Parcelamento disponível no cartão de crédito.</p>
         </article>
         <article>
           <span class="info-icon">🔄</span>
           <span class="info-label">Trocas</span>
           <h3>7 dias corridos</h3>
-          <p>
-            Solicitações após o recebimento, com produto sem uso,
-            etiqueta e embalagem originais preservadas.
-          </p>
+          <p>Solicitações após o recebimento, com produto sem uso, etiqueta e embalagem originais preservadas.</p>
         </article>
         <article>
           <span class="info-icon">🔒</span>
           <span class="info-label">Privacidade</span>
           <h3>Dados protegidos</h3>
-          <p>
-            Seus dados são usados apenas para pagamento e entrega,
-            seguindo rigorosamente a LGPD.
-          </p>
+          <p>Seus dados são usados apenas para pagamento e entrega, seguindo rigorosamente a LGPD.</p>
         </article>
         <article>
           <span class="info-icon">🌸</span>
           <span class="info-label">Curadoria</span>
           <h3>Seleção exclusiva</h3>
-          <p>
-            Cada peça e fragrância é cuidadosamente selecionada
-            para garantir qualidade e sofisticação.
-          </p>
+          <p>Cada peça e fragrância é cuidadosamente selecionada para garantir qualidade e sofisticação.</p>
         </article>
       </section>
 
@@ -399,12 +444,12 @@
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Informações</h4>
+          <h4>Minha Conta</h4>
           <ul>
-            <li><a href="#politicas">Política de Trocas</a></li>
-            <li><a href="#politicas">Privacidade &amp; LGPD</a></li>
-            <li><a href="#frete">Calcular Frete</a></li>
-            <li><a href="#contato">Fale Conosco</a></li>
+            <li><a href="/minha-conta.html">Meus Dados</a></li>
+            <li><a href="/minha-conta.html#pedidos">Meus Pedidos</a></li>
+            <li><a href="/minha-conta.html#enderecos">Endereços</a></li>
+            <li><a href="/minha-conta.html#favoritos">Favoritos</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -436,7 +481,7 @@
     <!-- ── Toast container ── -->
     <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
 
-    <!-- ── Carrinho ── -->
+    <!-- ── Carrinho Drawer ── -->
     <aside class="drawer" id="cartDrawer" aria-hidden="true" aria-label="Carrinho de compras">
       <div class="drawer-panel">
         <div class="drawer-header">
@@ -448,8 +493,8 @@
           <form class="checkout-form" id="checkoutForm" style="margin-top:20px">
             <p class="cart-section-title">Dados de entrega</p>
             <label>Nome completo <input id="customerName" required autocomplete="name" /></label>
-            <label>CPF <input id="customerCpf" inputmode="numeric" placeholder="000.000.000-00" required /></label>
-            <label>Telefone <input id="customerPhone" inputmode="tel" required autocomplete="tel" /></label>
+            <label>CPF <input id="customerCpf" inputmode="numeric" placeholder="000.000.000-00" required data-mask="cpf" /></label>
+            <label>Telefone <input id="customerPhone" inputmode="tel" required autocomplete="tel" data-mask="phone" /></label>
             <label>CEP <input id="checkoutCep" inputmode="numeric" maxlength="9" required autocomplete="postal-code" /></label>
             <label>Endereço <input id="customerAddress" required autocomplete="street-address" /></label>
             <label>Número <input id="customerNumber" required /></label>
@@ -467,60 +512,98 @@
               <div class="grand-total"><span>Total</span><strong id="totalValue">R$ 0,00</strong></div>
             </div>
             <button class="primary-button" type="submit" style="width:100%">Finalizar Pedido →</button>
-            <p class="microcopy">O envio abre um resumo para finalização via WhatsApp. Pagamento real exige gateway conectado.</p>
+            <p class="microcopy">O pedido é registrado na sua conta e o resumo é enviado via WhatsApp para finalização.</p>
           </form>
         </div>
       </div>
     </aside>
 
-    <!-- ── Admin ── -->
-    <aside class="drawer" id="adminDrawer" aria-hidden="true" aria-label="Painel administrativo">
-      <div class="drawer-panel admin-panel">
-        <div class="drawer-header">
-          <h2>Admin Essenza</h2>
-          <button class="icon-button" id="closeAdmin" type="button" aria-label="Fechar painel admin">✕</button>
+    <!-- ══════════════════════════════════════════
+         MODAIS DE AUTENTICAÇÃO
+    ══════════════════════════════════════════ -->
+
+    <!-- Modal Login -->
+    <div class="modal-overlay" id="loginModal">
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal="loginModal" aria-label="Fechar">✕</button>
+        <div class="modal-header">
+          <img src="assets/essenza-symbol.png" alt="" class="modal-logo" />
+          <h2>Entrar na sua conta</h2>
+          <p>Bem-vinda de volta à Essenza</p>
         </div>
-        <div class="drawer-body">
-          <form class="admin-login" id="adminLogin">
-            <label>Senha do painel <input id="adminPassword" type="password" placeholder="Senha inicial: 2026" /></label>
-            <button class="primary-button" type="submit">Entrar</button>
-          </form>
-          <div class="admin-content" id="adminContent" hidden>
-            <form class="product-form" id="productForm">
-              <input type="hidden" id="productId" />
-              <label>Nome <input id="productName" required /></label>
-              <label>
-                Categoria
-                <select id="productCategory">
-                  <option>Perfumes</option>
-                  <option>Vestidos</option>
-                  <option>Blusas</option>
-                  <option>Calças</option>
-                  <option>Acessórios</option>
-                </select>
-              </label>
-              <label>
-                Subcategoria
-                <select id="productSubcategory">
-                  <option value="">Nenhuma</option>
-                </select>
-              </label>
-              <label>Preço <input id="productPrice" type="number" min="0" step="0.01" required /></label>
-              <label>Peso em gramas <input id="productWeight" type="number" min="1" step="1" required /></label>
-              <label>Estoque <input id="productStock" type="number" min="0" step="1" required /></label>
-              <label>URL da foto <input id="productImage" type="url" placeholder="https://…" /></label>
-              <label>Descrição <textarea id="productDescription" rows="3" required></textarea></label>
-              <button class="primary-button" type="submit">Salvar produto</button>
-              <button class="secondary-button" id="resetProductForm" type="button">Novo produto</button>
-            </form>
-            <div style="margin-top:20px">
-              <h3>Produtos cadastrados</h3>
-              <div id="adminProductList" class="admin-list" style="margin-top:12px"></div>
-            </div>
-          </div>
-        </div>
+        <form id="loginForm" class="modal-form">
+          <div class="form-error"></div>
+          <label>
+            E-mail ou CPF
+            <input id="loginIdentifier" type="text" placeholder="seu@email.com ou 000.000.000-00" required autocomplete="username" />
+          </label>
+          <label>
+            Senha
+            <input id="loginPassword" type="password" placeholder="Sua senha" required autocomplete="current-password" />
+          </label>
+          <button class="primary-button" type="submit" style="width:100%">Entrar</button>
+          <p class="modal-switch">
+            Não tem conta? <a href="#" data-switch-modal="registerModal">Criar conta</a>
+          </p>
+          <p class="modal-switch">
+            <a href="#" id="forgotPasswordLink">Esqueci minha senha</a>
+          </p>
+        </form>
       </div>
-    </aside>
+    </div>
+
+    <!-- Modal Registro -->
+    <div class="modal-overlay" id="registerModal">
+      <div class="modal-card modal-card-lg">
+        <button class="modal-close" data-close-modal="registerModal" aria-label="Fechar">✕</button>
+        <div class="modal-header">
+          <img src="assets/essenza-symbol.png" alt="" class="modal-logo" />
+          <h2>Criar conta</h2>
+          <p>Junte-se à Essenza e aproveite vantagens exclusivas</p>
+        </div>
+        <form id="registerForm" class="modal-form">
+          <div class="form-error"></div>
+          <label>
+            Nome completo
+            <input id="registerName" type="text" required autocomplete="name" />
+          </label>
+          <div class="form-row">
+            <label>
+              E-mail
+              <input id="registerEmail" type="email" required autocomplete="email" />
+            </label>
+            <label>
+              CPF
+              <input id="registerCpf" type="text" required data-mask="cpf" placeholder="000.000.000-00" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Telefone
+              <input id="registerPhone" type="tel" data-mask="phone" placeholder="(00) 00000-0000" autocomplete="tel" />
+            </label>
+            <label>
+              Data de nascimento
+              <input id="registerBirthDate" type="date" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Senha
+              <input id="registerPassword" type="password" required minlength="6" autocomplete="new-password" />
+            </label>
+            <label>
+              Confirmar senha
+              <input id="registerConfirmPassword" type="password" required minlength="6" autocomplete="new-password" />
+            </label>
+          </div>
+          <button class="primary-button" type="submit" style="width:100%">Criar Conta</button>
+          <p class="modal-switch">
+            Já tem conta? <a href="#" data-switch-modal="loginModal">Entrar</a>
+          </p>
+        </form>
+      </div>
+    </div>
 
     <!-- ── Template do card de produto ── -->
     <template id="productCardTemplate">
@@ -541,6 +624,9 @@
       </article>
     </template>
 
-    <script src="script.js"></script>
+    <!-- Scripts modulares -->
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/app.js"></script>
   </body>
 </html>
