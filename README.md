@@ -169,7 +169,7 @@ erDiagram
 
 ### Step 1: Database Setup
 1. Log in to your Hostinger hPanel.
-2. Go to **Databases > MySQL Databases** and create a database named `u560112854_essenza_banco`.
+2. Go to **Databases > MySQL Databases** and create a database named `YOUR_DATABASE_NAME`.
 3. Open **phpMyAdmin** for this database.
 4. Import the `database.sql` file. This creates all 20 tables and populates base products.
 
@@ -180,17 +180,17 @@ erDiagram
 Ensure `public_html/includes/config.php` has correct MySQL credentials:
 ```php
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'u560112854_essenza_banco');
-define('DB_USER', 'u560112854_essenza');
-define('DB_PASS', 'Donadel@10');
+define('DB_NAME', 'YOUR_DATABASE_NAME');
+define('DB_USER', 'YOUR_DATABASE_USER');
+define('DB_PASS', 'YOUR_DATABASE_PASSWORD');
 define('APP_ENV', 'production'); // Use 'development' for local PHP tests
 ```
 
 ### Step 4: Run Admin Setup Script
 1. Navigate to: `https://essenzamodaeperfumaria.com/setup-admin.php`
 2. This creates the initial admin user:
-   - **User**: `admin@essenza.com`
-   - **Password**: `2026`
+   - **User**: `YOUR_ADMIN_EMAIL`
+   - **Password**: `YOUR_ADMIN_PASSWORD`
 3. **CRITICAL SECURITY REQUIREMENT**: Immediately delete the `setup-admin.php` file from the Hostinger server using File Manager.
 
 ---

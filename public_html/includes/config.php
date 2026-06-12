@@ -9,9 +9,9 @@ define('APP_ENV', 'production');
 
 // ── Banco de dados ──
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'u560112854_essenza_banco');
-define('DB_USER', 'u560112854_essenza');
-define('DB_PASS', 'Donadel@10');
+define('DB_NAME', 'YOUR_DATABASE_NAME');
+define('DB_USER', 'YOUR_DATABASE_USER');
+define('DB_PASS', 'YOUR_DATABASE_PASSWORD');
 define('DB_CHARSET', 'utf8mb4');
 
 // ── Segurança ──
@@ -26,7 +26,7 @@ define('RESET_TOKEN_EXPIRY', 3600);     // 1 hora em segundos
 // ── Aplicação ──
 define('SITE_NAME', 'Essenza');
 define('SITE_URL', 'https://essenzamodaeperfumaria.com');
-define('ADMIN_INITIAL_PASSWORD', '2026');
+define('ADMIN_INITIAL_PASSWORD', 'YOUR_ADMIN_PASSWORD');
 define('ITEMS_PER_PAGE', 20);
 define('UPLOAD_MAX_SIZE', 5 * 1024 * 1024); // 5MB
 

@@ -1,6 +1,6 @@
 -- ============================================================
 -- ESSENZA — E-commerce Database Schema
--- MySQL Database: u560112854_essenza_banco
+-- MySQL Database: YOUR_DATABASE_NAME
 -- Versão: 2.0 — Sistema completo de e-commerce
 -- ============================================================
 
