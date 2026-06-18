@@ -7,6 +7,7 @@ const EssenzaApp = (() => {
   const API_URL = '/api/products';
   let products = [];
   let currentFilter = 'todos';
+  let userFavorites = new Set();
 
   const fallbackImages = {
     Perfumes:   'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=900&q=80',
@@ -136,6 +137,7 @@ const EssenzaApp = (() => {
       // Favorito (coração)
       const favBtn = document.createElement('button');
       favBtn.className = 'product-fav-btn';
+      if (userFavorites.has(product.id)) favBtn.classList.add('active');
       favBtn.type = 'button';
       favBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
       favBtn.setAttribute('aria-label', 'Adicionar aos favoritos');
@@ -145,13 +147,13 @@ const EssenzaApp = (() => {
           EssenzaAuth.openModal('loginModal');
           return;
         }
+        const isFav = favBtn.classList.contains('active');
         try {
-          await EssenzaAuth.api('/api/favorites', {
-            method: 'POST',
-            body: JSON.stringify({ product_id: product.id }),
+          await EssenzaAuth.api(`/api/favorites/${product.id}`, {
+            method: isFav ? 'DELETE' : 'POST',
           });
-          favBtn.classList.add('active');
-          showToast('Adicionado aos favoritos!', '❤️');
+          favBtn.classList.toggle('active');
+          showToast(isFav ? 'Removido dos favoritos' : 'Adicionado aos favoritos!', '❤️');
         } catch {
           showToast('Erro ao favoritar', '⚠️');
         }
@@ -254,6 +256,16 @@ const EssenzaApp = (() => {
     if (whatsFloat) whatsFloat.href = waHref;
   }
 
+  /* ── Carregar favoritos do usuário ── */
+  async function loadUserFavorites() {
+    if (!window.EssenzaAuth?.isLoggedIn()) return;
+    try {
+      const favs = await EssenzaAuth.api('/api/favorites');
+      userFavorites = new Set((favs || []).map(p => p.id));
+      renderProducts();
+    } catch {}
+  }
+
   /* ── Init ── */
   async function init() {
     products = await loadProducts();
@@ -265,6 +277,15 @@ const EssenzaApp = (() => {
 
     // Inicializar carrinho após produtos carregados
     EssenzaCart.init();
+
+    // Carregar favoritos quando o usuário estiver logado
+    const waitForAuth = setInterval(() => {
+      if (window.EssenzaAuth?.isLoggedIn()) {
+        clearInterval(waitForAuth);
+        loadUserFavorites();
+      }
+    }, 300);
+    setTimeout(() => clearInterval(waitForAuth), 5000);
   }
 
   return {

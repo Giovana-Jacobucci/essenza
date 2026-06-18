@@ -7,6 +7,23 @@ const EssenzaAdmin = (() => {
   const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   let currentSection = 'dashboard';
 
+  /* ── Mapa de Subcategorias ── */
+  const subcategoryMap = {
+    'Vestidos':   ['Vestidos Longos', 'Vestidos Curtos', 'Vestidos Midi', 'Vestidos Florais'],
+    'Blusas':     ['T-Shirts', 'Croppeds', 'Blusas Sociais', 'Regatas'],
+    'Calças':     ['Calça Jeans', 'Calça Social', 'Legging', 'Shorts'],
+    'Perfumes':   ['Feminino', 'Masculino', 'Unissex'],
+    'Acessórios': ['Colares', 'Brincos', 'Pulseiras', 'Bolsas', 'Cintos'],
+  };
+
+  function populateSubcategories(category, selectedValue = '') {
+    const subSelect = document.getElementById('pSubcategory');
+    if (!subSelect) return;
+    const subs = subcategoryMap[category] || [];
+    subSelect.innerHTML = '<option value="">— Nenhuma —</option>' +
+      subs.map(s => `<option value="${s}"${s === selectedValue ? ' selected' : ''}>${s}</option>`).join('');
+  }
+
   async function api(url, options = {}) {
     return EssenzaAuth.api(url, options);
   }
@@ -103,8 +120,11 @@ const EssenzaAdmin = (() => {
         <td>#${o.order_number}</td>
         <td>${o.formatted_date}</td>
         <td>
-          <div>${o.customer_name}</div>
-          <small>${o.customer_email}</small>
+          <div>${o.shipping_name || o.customer_name || '-'}</div>
+        </td>
+        <td>
+          <div class="address-cell">${o.shipping_street || '-'}${o.shipping_number ? ', ' + o.shipping_number : ''}</div>
+          <small>${o.shipping_city || ''}${o.shipping_state ? '/' + o.shipping_state : ''}</small>
         </td>
         <td>${money.format(parseFloat(o.total))}</td>
         <td>${o.payment_label}</td>
@@ -243,19 +263,27 @@ const EssenzaAdmin = (() => {
     const tbody = document.getElementById('productsTable');
     if (!tbody) return;
 
-    tbody.innerHTML = products.map(p => `
+    tbody.innerHTML = products.map(p => {
+      const tags = [];
+      if (p.is_new == 1) tags.push('<span class="product-tag product-tag--new">✦ Novo</span>');
+      if (p.is_best_seller == 1) tags.push('<span class="product-tag product-tag--best">🔥 Destaque</span>');
+      return `
       <tr>
         <td>${p.sku || '-'}</td>
         <td>${p.name}</td>
-        <td>${p.category || '-'}</td>
+        <td>
+          <div>${p.category || '-'}</div>
+          ${p.subcategory ? `<small>${p.subcategory}</small>` : ''}
+        </td>
         <td>${money.format(parseFloat(p.price))}</td>
         <td class="${parseInt(p.stock) <= 5 ? 'low-stock' : ''}">${p.stock}</td>
+        <td><div class="product-tags">${tags.join('') || '<span style="color:var(--admin-muted)">—</span>'}</div></td>
         <td>
           <button type="button" onclick="EssenzaAdmin.editProduct('${p.id}')" class="btn-sm">Editar</button>
           <button type="button" onclick="EssenzaAdmin.deleteProduct('${p.id}')" class="btn-sm btn-danger">Excluir</button>
         </td>
       </tr>
-    `).join('');
+    `;}).join('');
 
     renderPagination('productsPagination', pagination, loadProducts);
   }
@@ -281,11 +309,23 @@ const EssenzaAdmin = (() => {
       form.querySelector('#pStock').value = product.stock;
       form.querySelector('#pImage').value = product.image || '';
       form.querySelector('#pDescription').value = product.description;
-      form.querySelector('#pNew').checked = product.is_new == 1;
-      form.querySelector('#pBestSeller').checked = product.is_best_seller == 1;
+      form.querySelector('#pCategory').value = product.category || 'Vestidos';
+      populateSubcategories(product.category || 'Vestidos', product.subcategory || '');
+
+      // Tag toggles
+      const isNew = product.is_new == 1;
+      const isBest = product.is_best_seller == 1;
+      form.querySelector('#pNew').value = isNew ? '1' : '0';
+      form.querySelector('#pBestSeller').value = isBest ? '1' : '0';
+      form.querySelector('#pNewToggle').classList.toggle('active', isNew);
+      form.querySelector('#pBestSellerToggle').classList.toggle('active', isBest);
     } else {
       form.reset();
       form.querySelector('#pId').value = '';
+      form.querySelector('#pNew').value = '0';
+      form.querySelector('#pBestSeller').value = '0';
+      form.querySelectorAll('.tag-toggle').forEach(t => t.classList.remove('active'));
+      populateSubcategories(form.querySelector('#pCategory').value);
     }
   }
 
@@ -304,8 +344,10 @@ const EssenzaAdmin = (() => {
       stock: parseInt(form.querySelector('#pStock').value) || 0,
       image: form.querySelector('#pImage').value,
       description: form.querySelector('#pDescription').value,
-      is_new: form.querySelector('#pNew').checked,
-      is_best_seller: form.querySelector('#pBestSeller').checked,
+      category: form.querySelector('#pCategory').value,
+      subcategory: form.querySelector('#pSubcategory').value || null,
+      is_new: form.querySelector('#pNew').value === '1',
+      is_best_seller: form.querySelector('#pBestSeller').value === '1',
     };
 
     try {
@@ -429,6 +471,13 @@ const EssenzaAdmin = (() => {
       document.getElementById('adminProductForm').style.display = 'none';
     });
 
+    // Subcategoria dinâmica
+    const catSelect = document.getElementById('pCategory');
+    if (catSelect) {
+      catSelect.addEventListener('change', () => populateSubcategories(catSelect.value));
+      populateSubcategories(catSelect.value);
+    }
+
     // Busca de produtos
     document.getElementById('productSearch')?.addEventListener('input', () => loadProducts());
     document.getElementById('customerSearch')?.addEventListener('input', () => loadCustomers());
@@ -436,6 +485,18 @@ const EssenzaAdmin = (() => {
     // Modal fechar
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
       btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+    });
+
+    // Tag toggles
+    document.querySelectorAll('.tag-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+        const targetId = toggle.dataset.target;
+        const hiddenInput = document.getElementById(targetId);
+        if (hiddenInput) {
+          hiddenInput.value = toggle.classList.contains('active') ? '1' : '0';
+        }
+      });
     });
   }
 

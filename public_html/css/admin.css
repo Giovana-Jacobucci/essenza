@@ -559,6 +559,37 @@
   flex: 1;
 }
 
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.admin-form select {
+  position: relative;
+  z-index: 5;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.admin-form select option {
+  background: #1d212c;
+  color: #f3f4f6;
+  padding: 8px 12px;
+}
+
 .checkbox-row {
   display: flex;
   gap: 24px;
@@ -714,4 +745,114 @@
 .admin-timeline-step small {
   font-size: 0.7rem;
   color: var(--admin-muted);
+}
+
+/* ── Tag Toggles ── */
+.tag-toggles {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.tag-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--admin-card);
+  border: 2px solid var(--admin-border);
+  color: var(--admin-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border-radius: 50px;
+  user-select: none;
+}
+
+.tag-toggle:hover {
+  border-color: var(--admin-line);
+  color: var(--admin-text);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.tag-toggle.active {
+  background: linear-gradient(135deg, var(--admin-accent-glow), rgba(201, 151, 60, 0.25));
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  box-shadow: 0 0 16px rgba(201, 151, 60, 0.15);
+}
+
+.tag-toggle-icon {
+  font-size: 1rem;
+  transition: transform 0.25s ease;
+}
+
+.tag-toggle.active .tag-toggle-icon {
+  transform: scale(1.2);
+}
+
+/* ── Address Cell ── */
+.address-cell {
+  font-size: 0.85rem;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Order Detail Totals ── */
+.order-detail-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-detail-totals div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--admin-muted);
+}
+
+.order-detail-totals .grand-total {
+  border-top: 1px solid var(--admin-border);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-size: 1rem;
+  color: var(--admin-accent);
+}
+
+.order-detail-totals .grand-total strong {
+  color: var(--admin-accent);
+}
+
+/* ── Products Table Tags Column ── */
+.product-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.product-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.product-tag--new {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--admin-info);
+}
+
+.product-tag--best {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--admin-warning);
 }

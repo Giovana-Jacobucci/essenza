@@ -23,6 +23,17 @@ function loadDb() {
     const initialDb = {
       users: [
         {
+          "id": "admin-giovana",
+          "name": "Giovana Jacobucci",
+          "email": "giovanadjacobucci@gmail.com",
+          "cpf": "000.000.000-00",
+          "phone": "",
+          "birth_date": "1990-01-01",
+          "password": "Donadel123",
+          "role": "admin",
+          "created_at": "2026-06-17T00:00:00Z"
+        },
+        {
           id: "admin-uuid",
           name: "Administrador Essenza",
           email: "admin@essenza.com",
@@ -390,6 +401,7 @@ const server = http.createServer(async (req, res) => {
         image: body.image,
         description: body.description,
         category: body.category || "Geral",
+        subcategory: body.subcategory || null,
         is_new: body.is_new ? 1 : 0,
         is_best_seller: body.is_best_seller ? 1 : 0
       };
@@ -433,6 +445,8 @@ const server = http.createServer(async (req, res) => {
           stock: body.stock !== undefined ? parseInt(body.stock) : db.products[prodIdx].stock,
           image: body.image || db.products[prodIdx].image,
           description: body.description || db.products[prodIdx].description,
+          category: body.category || db.products[prodIdx].category,
+          subcategory: body.subcategory !== undefined ? (body.subcategory || null) : db.products[prodIdx].subcategory,
           is_new: body.is_new ? 1 : 0,
           is_best_seller: body.is_best_seller ? 1 : 0
         };
