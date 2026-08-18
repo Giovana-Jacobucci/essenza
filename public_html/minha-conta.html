@@ -385,11 +385,29 @@
             <label>
               Forma de pagamento
               <select id="paymentMethod">
-                <option>PIX</option>
-                <option>Cartão de crédito</option>
-                <option>Boleto</option>
+                <option value="pix">PIX</option>
+                <option value="credit_card">Cartão de crédito</option>
+                <option value="boleto">Boleto</option>
               </select>
             </label>
+            <div id="creditCardFields" style="display:none; margin-top:15px; border-top:1px solid var(--border); padding-top:15px; display:flex; flex-direction:column; gap:10px;">
+              <p class="cart-section-title">Dados do Cartão</p>
+              <label>Número do Cartão <input id="cardNumber" placeholder="0000 0000 0000 0000" inputmode="numeric" /></label>
+              <div style="display:flex; gap:10px;">
+                <label style="flex:2;">Validade <input id="cardExpiry" placeholder="MM/AA" maxlength="5" /></label>
+                <label style="flex:1;">CVV <input id="cardCvv" placeholder="123" maxlength="4" inputmode="numeric" type="password" /></label>
+              </div>
+              <label>Nome do Titular <input id="cardholderName" placeholder="Como impresso no cartão" /></label>
+              <label>
+                Parcelas
+                <select id="cardInstallments">
+                  <option value="1">1x sem juros</option>
+                  <option value="2">2x sem juros</option>
+                  <option value="3">3x sem juros</option>
+                </select>
+              </label>
+            </div>
+            <div id="paymentResultArea" style="display:none; margin-top:15px; border-top:1px solid var(--border); padding-top:15px;"></div>
             <div class="totals">
               <div><span>Subtotal</span><strong id="subtotalValue">R$ 0,00</strong></div>
               <div><span>Frete</span><strong id="shippingValue">Calcule pelo CEP</strong></div>
@@ -401,6 +419,7 @@
       </div>
     </aside>
 
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script src="js/auth.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/account.js"></script>

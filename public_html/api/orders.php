@@ -226,13 +226,161 @@ switch (true) {
             );
             $stmt->execute([$orderId, $user['id']]);
 
-            // Registrar pagamento
+            // Registrar pagamento no Mercado Pago ou Simular localmente
+            $paymentMethod = $data['payment_method']; // pix, credit_card, boleto
+            $gatewayResponse = null;
+            $transactionId = null;
+            $paymentStatus = 'pending';
+            $paidAt = null;
+            $orderStatus = 'pending_payment';
+            $mpMeta = []; // Para retornar Pix QR Code ou Boleto PDF
+
+            $cleanCpf = preg_replace('/\D/', '', $user['cpf'] ?? '');
+            $fullName = $data['shipping_name'] ?? $user['name'] ?? '';
+            $nameParts = explode(' ', trim($fullName));
+            $firstName = $nameParts[0] ?? 'Cliente';
+            $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : 'Essenza';
+
+            // Se for ambiente de desenvolvimento com chave de teste padrão OU APP_ENV for diferente de production
+            $isMock = (APP_ENV !== 'production' || str_contains(MP_ACCESS_TOKEN, 'TEST-00000000') || !defined('MP_ACCESS_TOKEN'));
+
+            if ($isMock) {
+                // Simulação local / Sandbox Dev
+                $transactionId = 'mock_mp_' . rand(100000, 999999);
+                if ($paymentMethod === 'pix') {
+                    $mpMeta = [
+                        'qr_code_base64' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+                        'qr_code' => '00020101021226830014br.gov.bcb.pix2561api.mercadopago.com/pix/v2/mock-id-essenza-pix-payment-simulate'
+                    ];
+                    $gatewayResponse = json_encode(['mock' => true, 'payment_method' => 'pix']);
+                } elseif ($paymentMethod === 'boleto') {
+                    $mpMeta = [
+                        'pdf_url' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                        'barcode' => '34191.79001 01043.513184 91020.150008 7 900000000' . round($total * 100)
+                    ];
+                    $gatewayResponse = json_encode(['mock' => true, 'payment_method' => 'boleto']);
+                } else {
+                    // Cartão de Crédito
+                    // Se o nome no cartão ou titular contiver "REJEITAR", simula rejeição
+                    if (str_contains(strtoupper($fullName), 'REJEITAR')) {
+                        $paymentStatus = 'rejected';
+                        $orderStatus = 'cancelled';
+                    } else {
+                        $paymentStatus = 'approved';
+                        $orderStatus = 'paid';
+                        $paidAt = date('Y-m-d H:i:s');
+                    }
+                    $gatewayResponse = json_encode(['mock' => true, 'payment_method' => 'credit_card', 'status' => $paymentStatus]);
+                }
+            } else {
+                // Integração real com a API do Mercado Pago
+                $mpPayload = [
+                    'transaction_amount' => (float)$total,
+                    'description' => 'Pedido #' . $orderNumber . ' na ' . SITE_NAME,
+                    'external_reference' => $orderId,
+                    'notification_url' => SITE_URL . '/api/mp-webhook',
+                    'payer' => [
+                        'email' => $user['email'],
+                        'first_name' => $firstName,
+                        'last_name' => $lastName,
+                        'identification' => [
+                            'type' => 'CPF',
+                            'number' => $cleanCpf
+                        ]
+                    ]
+                ];
+
+                if ($paymentMethod === 'pix') {
+                    $mpPayload['payment_method_id'] = 'pix';
+                } elseif ($paymentMethod === 'boleto') {
+                    $mpPayload['payment_method_id'] = 'bolbradesco';
+                } elseif ($paymentMethod === 'credit_card') {
+                    $mpPayload['token'] = $data['token'] ?? '';
+                    $mpPayload['installments'] = (int)($data['installments'] ?? 1);
+                    $mpPayload['payment_method_id'] = $data['payment_method_id'] ?? '';
+                    if (isset($data['issuer_id'])) {
+                        $mpPayload['issuer_id'] = (int)$data['issuer_id'];
+                    }
+                }
+
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, 'https://api.mercadopago.com/v1/payments');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($mpPayload));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer ' . MP_ACCESS_TOKEN,
+                    'Content-Type: application/json',
+                    'X-Idempotency-Key: ' . $orderId
+                ]);
+
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($httpCode !== 200 && $httpCode !== 201) {
+                    $errData = json_decode($response, true);
+                    $errMsg = $errData['message'] ?? 'Erro desconhecido ao processar pagamento com Mercado Pago';
+                    throw new \RuntimeException($errMsg);
+                }
+
+                $resData = json_decode($response, true);
+                $transactionId = $resData['id'] ?? null;
+                $status = $resData['status'] ?? 'pending';
+                $gatewayResponse = $response;
+
+                if ($status === 'approved') {
+                    $paymentStatus = 'approved';
+                    $orderStatus = 'paid';
+                    $paidAt = date('Y-m-d H:i:s');
+                } elseif (in_array($status, ['rejected', 'cancelled'])) {
+                    $paymentStatus = 'rejected';
+                    $orderStatus = 'cancelled';
+                }
+
+                // Extrair metadados dependendo do método de pagamento
+                if ($paymentMethod === 'pix') {
+                    $mpMeta = [
+                        'qr_code_base64' => $resData['point_of_interaction']['transaction_data']['qr_code_base64'] ?? '',
+                        'qr_code' => $resData['point_of_interaction']['transaction_data']['qr_code'] ?? ''
+                    ];
+                } elseif ($paymentMethod === 'boleto') {
+                    $mpMeta = [
+                        'pdf_url' => $resData['transaction_details']['external_resource_url'] ?? '',
+                        'barcode' => $resData['barcode']['content'] ?? ''
+                    ];
+                }
+            }
+
+            // Atualizar o status inicial do pedido e do histórico se o pagamento mudou o status
+            if ($orderStatus !== 'pending_payment') {
+                $stmt = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ?');
+                $stmt->execute([$orderStatus, $orderId]);
+
+                // Registrar o status atualizado no histórico
+                $stmt = $pdo->prepare(
+                    'INSERT INTO order_status_history (order_id, status, notes, changed_by)
+                     VALUES (?, ?, ?, ?)'
+                );
+                $stmt->execute([$orderId, $orderStatus, 'Pagamento processado pelo gateway: ' . $paymentStatus, $user['id']]);
+            }
+
+            // Gravar o pagamento
             $paymentId = generateUUID();
             $stmt = $pdo->prepare(
-                'INSERT INTO payments (id, order_id, method, amount, status)
-                 VALUES (?, ?, ?, ?, "pending")'
+                'INSERT INTO payments (id, order_id, method, amount, status, transaction_id, gateway_response, paid_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
             );
-            $stmt->execute([$paymentId, $orderId, $data['payment_method'], $total]);
+            $stmt->execute([
+                $paymentId,
+                $orderId,
+                $paymentMethod,
+                $total,
+                $paymentStatus,
+                $transactionId,
+                $gatewayResponse,
+                $paidAt
+            ]);
 
             // Limpar carrinho do usuário
             $stmt = $pdo->prepare('SELECT id FROM cart WHERE user_id = ?');
@@ -246,13 +394,15 @@ switch (true) {
             $pdo->commit();
 
             jsonResponse([
-                'id'           => $orderId,
-                'order_number' => $orderNumber,
-                'total'        => $total,
-                'message'      => 'Pedido criado com sucesso',
+                'id'             => $orderId,
+                'order_number'   => $orderNumber,
+                'total'          => $total,
+                'payment_status' => $paymentStatus,
+                'mp_meta'        => $mpMeta,
+                'message'        => 'Pedido criado com sucesso',
             ], 201);
-
         } catch (\Exception $e) {
+
             $pdo->rollBack();
             jsonError($e->getMessage(), 400);
         }

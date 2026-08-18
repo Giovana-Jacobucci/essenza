@@ -608,9 +608,10 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+
     if (subpath === "/orders" && method === "POST") {
       const body = await getJsonBody(req);
-      const { items, subtotal, shipping_cost, discount, total, payment_method, shipping_address } = body;
+      const { items, subtotal, shipping_cost, discount, total, payment_method, shipping_address, shipping_name } = body;
 
       const orderNum = 1000 + db.orders.length + 1;
       const today = new Date();
@@ -633,25 +634,56 @@ const server = http.createServer(async (req, res) => {
         };
       });
 
+      const payMethod = (payment_method || "pix").toLowerCase().replace(/ /g, "_");
+      let paymentStatus = "pending";
+      let mpMeta = {};
+      let orderStatus = "pending_payment";
+      let statusLabel = "Aguardando Pagamento";
+
+      if (payMethod === "pix") {
+        mpMeta = {
+          qr_code_base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          qr_code: "00020101021226830014br.gov.bcb.pix2561api.mercadopago.com/pix/v2/mock-id-essenza-pix-payment-simulate"
+        };
+      } else if (payMethod === "boleto") {
+        mpMeta = {
+          pdf_url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          barcode: "34191.79001 01043.513184 91020.150008 7 90000000022990"
+        };
+      } else if (payMethod === "credit_card" || payMethod.includes("cart") || payMethod === "card") {
+        // Simular rejeição de cartão se o nome contiver "rejeitar"
+        const cardName = shipping_name || currentUser.name || "";
+        if (cardName.toUpperCase().includes("REJEITAR")) {
+          paymentStatus = "rejected";
+          orderStatus = "cancelled";
+          statusLabel = "Cancelado";
+        } else {
+          paymentStatus = "approved";
+          orderStatus = "paid";
+          statusLabel = "Pago";
+        }
+      }
+
+      const orderId = "order-" + Math.random().toString(36).substr(2, 9);
       const newOrder = {
-        id: "order-" + Math.random().toString(36).substr(2, 9),
+        id: orderId,
         order_number: orderNum,
         user_id: currentUser.id,
-        status: "pending_payment",
-        status_label: "Aguardando Pagamento",
+        status: orderStatus,
+        status_label: statusLabel,
         subtotal: parseFloat(subtotal || total).toFixed(2),
         shipping_cost: parseFloat(shipping_cost || 0).toFixed(2),
         discount: parseFloat(discount || 0).toFixed(2),
         total: parseFloat(total).toFixed(2),
-        payment_label: payment_method || "PIX",
-        shipping_name: currentUser.name,
-        shipping_street: shipping_address.street || body.customerAddress || "",
-        shipping_number: shipping_address.number || body.customerNumber || "",
-        shipping_complement: shipping_address.complement || body.customerComplement || "",
-        shipping_neighborhood: shipping_address.neighborhood || body.customerNeighborhood || "",
-        shipping_city: shipping_address.city || body.customerCity || "",
-        shipping_state: shipping_address.state || body.customerState || "",
-        shipping_zip: shipping_address.zip_code || body.checkoutCep || "",
+        payment_label: payMethod === "pix" ? "PIX" : (payMethod === "boleto" ? "Boleto" : "Cartão de Crédito"),
+        shipping_name: shipping_name || currentUser.name,
+        shipping_street: shipping_address?.street || body.customerAddress || "",
+        shipping_number: shipping_address?.number || body.customerNumber || "",
+        shipping_complement: shipping_address?.complement || body.customerComplement || "",
+        shipping_neighborhood: shipping_address?.neighborhood || body.customerNeighborhood || "",
+        shipping_city: shipping_address?.city || body.customerCity || "",
+        shipping_state: shipping_address?.state || body.customerState || "",
+        shipping_zip: shipping_address?.zip_code || body.checkoutCep || "",
         formatted_date: formattedDate,
         status_history: [
           {
@@ -664,13 +696,59 @@ const server = http.createServer(async (req, res) => {
         items: orderItems
       };
 
+      if (orderStatus !== "pending_payment") {
+        newOrder.status_history.push({
+          status: orderStatus,
+          status_label: statusLabel,
+          date: formattedDate,
+          time: today.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+        });
+      }
+
       db.orders.push(newOrder);
       saveDb(db);
-      res.end(JSON.stringify({ message: "Pedido criado com sucesso", order_id: newOrder.id, order_number: orderNum }));
+
+      res.end(JSON.stringify({ 
+        message: "Pedido criado com sucesso", 
+        id: orderId, 
+        order_id: orderId, 
+        order_number: orderNum,
+        total: parseFloat(total).toFixed(2),
+        payment_status: paymentStatus,
+        mp_meta: mpMeta
+      }));
       return;
     }
 
-    // ── Endpoint: /api/orders/:id ──
+    if (subpath === "/dev/simulate-payment" && method === "POST") {
+      const body = await getJsonBody(req);
+      const { order_id, status } = body;
+      const orderIdx = db.orders.findIndex(o => o.id === order_id || String(o.order_number) === String(order_id));
+      if (orderIdx === -1) {
+        res.writeHead(404);
+        res.end(JSON.stringify({ error: "Pedido não encontrado" }));
+        return;
+      }
+
+      const today = new Date();
+      const targetStatus = status || "paid";
+      const label = statusLabels[targetStatus] || targetStatus;
+
+      db.orders[orderIdx].status = targetStatus;
+      db.orders[orderIdx].status_label = label;
+      db.orders[orderIdx].status_history.push({
+        status: targetStatus,
+        status_label: label,
+        date: today.toLocaleDateString("pt-BR"),
+        time: today.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+        notes: "Simulado via painel de testes"
+      });
+
+      saveDb(db);
+      res.end(JSON.stringify({ message: "Pagamento simulado com sucesso", status: targetStatus }));
+      return;
+    }
+
     const ordMatch = subpath.match(/^\/orders\/([^\/]+)$/);
     if (ordMatch && method === "GET") {
       const orderId = ordMatch[1];

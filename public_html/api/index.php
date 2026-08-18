@@ -44,8 +44,8 @@ $module = $segments[0] ?? '';
 
 // Validar CSRF em métodos que alteram dados
 if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
-    // Pular validação CSRF para login e registro (são os primeiros requests)
-    $skipCsrf = in_array($path, ['/auth/login', '/auth/register', '/auth/forgot-password']);
+    // Pular validação CSRF para login, registro e webhook de pagamentos
+    $skipCsrf = in_array($path, ['/auth/login', '/auth/register', '/auth/forgot-password', '/mp-webhook']);
 
     if (!$skipCsrf) {
         $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
@@ -58,7 +58,12 @@ if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
 
 // Roteamento por módulo
 switch ($module) {
+    case 'mp-webhook':
+        require __DIR__ . '/mp-webhook.php';
+        break;
+
     case 'auth':
+
         require __DIR__ . '/auth.php';
         break;
 

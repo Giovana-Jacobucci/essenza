@@ -336,6 +336,64 @@ const EssenzaCart = (() => {
     return { price, days: price === 0 ? 'Frete grátis 🎉' : base.days };
   }
 
+  /* ── Mercado Pago SDK Helper ── */
+  let mp = null;
+  function getMercadoPago() {
+    if (mp) return mp;
+    if (typeof window.MercadoPago !== 'undefined') {
+      try {
+        mp = new window.MercadoPago('TEST-00000000-0000-0000-0000-000000000000');
+      } catch (err) {
+        console.error('Falha ao inicializar SDK do Mercado Pago:', err);
+      }
+    }
+    return mp;
+  }
+
+  async function getCardToken() {
+    const mpInstance = getMercadoPago();
+    try {
+      const cardNumber = el('cardNumber')?.value.replace(/\s+/g, '') || '';
+      const expiry = el('cardExpiry')?.value.split('/') || [];
+      const month = expiry[0]?.trim() || '';
+      const year = expiry[1] ? '20' + expiry[1].trim() : '';
+      const cvv = el('cardCvv')?.value || '';
+      const holder = el('cardholderName')?.value || '';
+
+      if (!cardNumber || !month || !year || !cvv || !holder) {
+        throw new Error('Preencha todos os dados do cartão de crédito.');
+      }
+
+      // Simulação local / Sandbox
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || cardNumber.startsWith('4000')) {
+        return 'mock-card-token';
+      }
+
+      if (!mpInstance) {
+        throw new Error('SDK do Mercado Pago não carregado.');
+      }
+
+      const tokenResult = await mpInstance.createCardToken({
+        cardNumber,
+        cardholderName: holder,
+        cardExpirationMonth: month,
+        cardExpirationYear: year,
+        securityCode: cvv,
+        identificationType: 'CPF',
+        identificationNumber: el('customerCpf').value.replace(/\D/g, '')
+      });
+
+      if (tokenResult.id) {
+        return tokenResult.id;
+      } else {
+        const errorMsg = tokenResult.error?.message || 'Dados de cartão inválidos.';
+        throw new Error(errorMsg);
+      }
+    } catch (err) {
+      throw new Error(err.message || 'Erro ao gerar token do cartão.');
+    }
+  }
+
   /* ── Checkout ── */
   async function createOrder(formData) {
     if (!window.EssenzaAuth?.isLoggedIn()) {
@@ -357,6 +415,9 @@ const EssenzaCart = (() => {
       shipping_estimate: formData.estimate || null,
       payment_method: formData.payment_method,
       notes: formData.notes || null,
+      token: formData.token || null,
+      installments: formData.installments || 1,
+      payment_method_id: formData.payment_method_id || null
     };
 
     const result = await EssenzaAuth.api('/api/orders', {
@@ -458,6 +519,36 @@ const EssenzaCart = (() => {
       } catch {}
     });
 
+    // Alternar campos do cartão de crédito
+    const paySelect = el('paymentMethod');
+    const ccFields = el('creditCardFields');
+    if (paySelect && ccFields) {
+      paySelect.addEventListener('change', () => {
+        ccFields.style.display = paySelect.value === 'credit_card' ? 'flex' : 'none';
+      });
+    }
+
+    // Formatadores de input de cartão
+    const expiryInput = el('cardExpiry');
+    if (expiryInput) {
+      expiryInput.addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) {
+          v = v.slice(0, 2) + '/' + v.slice(2, 4);
+        }
+        e.target.value = v;
+      });
+    }
+
+    const cardNumInput = el('cardNumber');
+    if (cardNumInput) {
+      cardNumInput.addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g, '').slice(0, 16);
+        let formatted = v.match(/.{1,4}/g)?.join(' ') || v;
+        e.target.value = formatted;
+      });
+    }
+
     // Checkout form
     const checkoutForm = el('checkoutForm');
     if (checkoutForm) {
@@ -468,10 +559,20 @@ const EssenzaCart = (() => {
           return;
         }
 
-        const whatsappNumber = '5500000000000'; // TODO: carregar do site_settings
+        const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processando pedido...';
+
+        const paymentMethodVal = paySelect?.value || 'pix';
 
         if (window.EssenzaAuth?.isLoggedIn()) {
           try {
+            let cardToken = null;
+            if (paymentMethodVal === 'credit_card') {
+              cardToken = await getCardToken();
+            }
+
             const addressParts = (el('customerAddress')?.value || '').split(',');
             const ship = currentShipping?.address || {};
 
@@ -484,20 +585,135 @@ const EssenzaCart = (() => {
               city: ship.localidade || '',
               state: ship.uf || '',
               zip: el('checkoutCep')?.value?.replace(/\D/g, '') || '',
-              payment_method: (el('paymentMethod')?.value || 'pix').toLowerCase().replace(/ /g, '_').replace('cartão_de_crédito', 'credit_card'),
+              payment_method: paymentMethodVal,
+              token: cardToken,
+              installments: el('cardInstallments')?.value || 1,
+              payment_method_id: paymentMethodVal === 'credit_card' ? 'visa' : null // simplificado
             });
 
-            const msg = encodeURIComponent(buildWhatsAppMessage(result.order_number));
-            window.open(`https://wa.me/${whatsappNumber}?text=${msg}`, '_blank', 'noreferrer');
-            closeDrawerEl();
-            EssenzaApp.showToast(`Pedido #${result.order_number} criado com sucesso!`, '🎉');
+            // Ocultar formulário de dados e mostrar resultados de pagamento
+            Array.from(checkoutForm.children).forEach(child => {
+              if (child.id !== 'paymentResultArea') {
+                child.style.display = 'none';
+              }
+            });
+
+            const resultArea = el('paymentResultArea');
+            resultArea.style.display = 'block';
+
+            if (paymentMethodVal === 'pix') {
+              resultArea.innerHTML = `
+                <div class="payment-success-box" style="text-align:center;">
+                  <h3 style="margin-bottom:10px;">Pedido #${result.order_number} Criado!</h3>
+                  <p>Escaneie o código abaixo no app do seu banco:</p>
+                  <div style="margin: 15px 0;">
+                    <img src="${result.mp_meta.qr_code_base64}" alt="QR Code Pix" style="max-width:180px; border:1px solid #ccc; padding:10px; background:#fff; margin:0 auto;" />
+                  </div>
+                  <label style="text-align:left; display:block; font-size:0.85rem;">Código Copia e Cola Pix:
+                    <textarea readonly style="width:100%; height:60px; font-family:monospace; font-size:0.75rem; margin-top:5px; padding:5px;" onclick="this.select()">${result.mp_meta.qr_code}</textarea>
+                  </label>
+                  <button class="primary-button copy-pix-btn" style="width:100%; margin-top:10px;" type="button">Copiar Código Pix</button>
+                  ${location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? `
+                    <button class="secondary-button simulate-pay-btn" style="width:100%; margin-top:10px; background:#4caf50; color:#fff; border:none;" type="button">Simular Pagamento Aprovado (Dev)</button>
+                  ` : ''}
+                </div>
+              `;
+
+              const copyPixBtn = resultArea.querySelector('.copy-pix-btn');
+              if (copyPixBtn) {
+                copyPixBtn.addEventListener('click', () => {
+                  navigator.clipboard.writeText(result.mp_meta.qr_code);
+                  EssenzaApp.showToast('Código Pix copiado!', '📋');
+                });
+              }
+            } else if (paymentMethodVal === 'boleto') {
+              resultArea.innerHTML = `
+                <div class="payment-success-box" style="text-align:center;">
+                  <h3 style="margin-bottom:10px;">Pedido #${result.order_number} Criado!</h3>
+                  <p>Boleto gerado com sucesso.</p>
+                  <div style="margin:15px 0; padding:10px; border:1px dashed var(--border); font-family:monospace; font-size:0.85rem;">
+                    <strong>Linha Digitável:</strong><br/>
+                    <span>${result.mp_meta.barcode}</span>
+                  </div>
+                  <a class="primary-button" href="${result.mp_meta.pdf_url}" target="_blank" style="display:block; text-decoration:none; margin-bottom:10px;">Visualizar / Imprimir Boleto</a>
+                  ${location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? `
+                    <button class="secondary-button simulate-pay-btn" style="width:100%; margin-top:10px; background:#4caf50; color:#fff; border:none;" type="button">Simular Pagamento Aprovado (Dev)</button>
+                  ` : ''}
+                </div>
+              `;
+            } else if (paymentMethodVal === 'credit_card') {
+              if (result.payment_status === 'approved') {
+                resultArea.innerHTML = `
+                  <div class="payment-success-box" style="text-align:center;">
+                    <span style="font-size:3rem;">🎉</span>
+                    <h3>Pagamento Aprovado!</h3>
+                    <p>Seu pedido #${result.order_number} foi recebido e o pagamento foi confirmado.</p>
+                    <button class="primary-button close-success-btn" style="width:100%; margin-top:15px;" type="button">OK</button>
+                  </div>
+                `;
+              } else {
+                resultArea.innerHTML = `
+                  <div class="payment-success-box" style="text-align:center; border-color:#f44336;">
+                    <span style="font-size:3rem;">❌</span>
+                    <h3>Pagamento Recusado</h3>
+                    <p>O pagamento do pedido #${result.order_number} foi recusado pela operadora do cartão.</p>
+                    <button class="primary-button retry-payment-btn" style="width:100%; margin-top:15px;" type="button">Voltar ao Carrinho</button>
+                  </div>
+                `;
+              }
+
+              const closeSuccessBtn = resultArea.querySelector('.close-success-btn');
+              if (closeSuccessBtn) {
+                closeSuccessBtn.addEventListener('click', () => {
+                  closeDrawerEl();
+                  location.reload();
+                });
+              }
+
+              const retryPaymentBtn = resultArea.querySelector('.retry-payment-btn');
+              if (retryPaymentBtn) {
+                retryPaymentBtn.addEventListener('click', () => {
+                  location.reload();
+                });
+              }
+            }
+
+            // Ativar simulador local de pagamentos
+            const simulatePayBtn = resultArea.querySelector('.simulate-pay-btn');
+            if (simulatePayBtn) {
+              simulatePayBtn.addEventListener('click', async () => {
+                try {
+                  simulatePayBtn.disabled = true;
+                  simulatePayBtn.textContent = 'Simulando...';
+                  await EssenzaAuth.api('/api/dev/simulate-payment', {
+                    method: 'POST',
+                    body: JSON.stringify({ order_id: result.id, status: 'paid' })
+                  });
+                  EssenzaApp.showToast('Pagamento aprovado simulado com sucesso!', '✓');
+                  setTimeout(() => {
+                    location.reload();
+                  }, 1500);
+                } catch (err) {
+                  EssenzaApp.showToast('Erro ao simular pagamento: ' + err.message, '⚠️');
+                  simulatePayBtn.disabled = false;
+                  simulatePayBtn.textContent = 'Simular Pagamento Aprovado (Dev)';
+                }
+              });
+            }
+
           } catch (err) {
             EssenzaApp.showToast(err.message, '⚠️');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
           }
         } else {
-          // Visitante — apenas WhatsApp
+          // Visitante — fallback WhatsApp
+          const whatsappNumber = '5500000000000';
           const msg = encodeURIComponent(buildWhatsAppMessage());
           window.open(`https://wa.me/${whatsappNumber}?text=${msg}`, '_blank', 'noreferrer');
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
         }
       });
     }
