@@ -79,17 +79,23 @@ const EssenzaApp = (() => {
   }
 
   function normalizeProduct(p) {
+    let cat = p.category || 'Outros';
+    let sub = p.subcategory || null;
+    if (parentCategoryMap[cat]) {
+      sub = cat;
+      cat = parentCategoryMap[cat];
+    }
     return {
       id: p.id,
       sku: p.sku || null,
       name: p.name,
-      category: p.category || 'Outros',
-      subcategory: p.subcategory || null,
-      price: parseFloat(p.price),
+      category: cat,
+      subcategory: sub,
+      price: parseFloat(p.price) || 0,
       compare_price: p.compare_price ? parseFloat(p.compare_price) : null,
       weight: parseInt(p.weight) || 0,
       stock: parseInt(p.stock) || 0,
-      image: p.image || fallbackImages[p.category] || fallbackImages.Roupas,
+      image: p.image || fallbackImages[cat] || fallbackImages.Roupas,
       description: p.description || '',
       isNew: p.is_new == 1 || p.is_new === true || p.isNew === true,
       isBestSeller: p.is_best_seller == 1 || p.is_best_seller === true || p.isBestSeller === true,
@@ -98,12 +104,30 @@ const EssenzaApp = (() => {
 
   function getDefaultProducts() {
     return [
-      { id: crypto.randomUUID(), name: 'Essenza Floral 100ml', category: 'Perfumes', price: 189.9, weight: 420, stock: 12, image: fallbackImages.Perfumes, description: 'Perfume feminino floral com toque fresco e acabamento sofisticado.', isNew: true },
-      { id: crypto.randomUUID(), name: 'Vestido Midi Aurora', category: 'Vestidos', price: 229.9, weight: 360, stock: 8, image: fallbackImages.Vestidos, description: 'Vestido midi leve, elegante e confortável para diversas ocasiões.', isBestSeller: true },
-      { id: crypto.randomUUID(), name: 'Cropped Siena', category: 'Blusas', price: 119.9, weight: 220, stock: 3, image: fallbackImages.Blusas, description: 'Blusa cropped com caimento ajustado e textura canelada premium.' },
-      { id: crypto.randomUUID(), name: 'Colar Dourado Luz', category: 'Acessórios', price: 69.9, weight: 80, stock: 20, image: fallbackImages.Acessórios, description: 'Acessório delicado para compor looks com brilho discreto.', isBestSeller: true },
-      { id: crypto.randomUUID(), name: 'Calça Reta Milano', category: 'Calças', price: 259.9, weight: 400, stock: 6, image: fallbackImages.Calças, description: 'Calça reta em tecido premium, perfeita para looks casuais e sociais.', isNew: true },
-      { id: crypto.randomUUID(), name: 'Noir Élégance 50ml', category: 'Perfumes', price: 299.9, weight: 380, stock: 5, image: fallbackImages.Perfumes, description: 'Fragrância amadeirada intensa com base de sândalo e baunilha.', isBestSeller: true },
+      { id: crypto.randomUUID(), name: 'Vestido Longo Sublime', category: 'Vestidos', subcategory: 'Vestidos Longos', price: 289.9, weight: 400, stock: 6, image: fallbackImages.Vestidos, description: 'Vestido longo fluido com caimento impecável e detalhes sofisticados.', isNew: true },
+      { id: crypto.randomUUID(), name: 'Vestido Midi Aurora', category: 'Vestidos', subcategory: 'Vestidos Midi', price: 229.9, weight: 360, stock: 8, image: fallbackImages.Vestidos, description: 'Vestido midi leve, elegante e confortável para diversas ocasiões.', isBestSeller: true },
+      { id: crypto.randomUUID(), name: 'Vestido Curto Brisa', category: 'Vestidos', subcategory: 'Vestidos Curtos', price: 199.9, weight: 300, stock: 5, image: fallbackImages.Vestidos, description: 'Vestido curto delicado para looks versáteis de dia e noite.' },
+      { id: crypto.randomUUID(), name: 'Vestido Floral Jardim', category: 'Vestidos', subcategory: 'Vestidos Florais', price: 249.9, weight: 340, stock: 7, image: fallbackImages.Vestidos, description: 'Estampa floral exclusiva com tecido leve e toque suave.', isNew: true },
+      
+      { id: crypto.randomUUID(), name: 'Cropped Siena', category: 'Blusas', subcategory: 'Croppeds', price: 119.9, weight: 220, stock: 3, image: fallbackImages.Blusas, description: 'Blusa cropped com caimento ajustado e textura canelada premium.' },
+      { id: crypto.randomUUID(), name: 'T-Shirt Essenza Algodão', category: 'Blusas', subcategory: 'T-Shirts', price: 99.9, weight: 180, stock: 15, image: fallbackImages.Blusas, description: 'T-shirt básica premium em algodão peruano macio.', isBestSeller: true },
+      { id: crypto.randomUUID(), name: 'Blusa Social Seda Pura', category: 'Blusas', subcategory: 'Blusas Sociais', price: 179.9, weight: 200, stock: 4, image: fallbackImages.Blusas, description: 'Blusa social com toque acetinado, ideal para ocasiões formais.' },
+      { id: crypto.randomUUID(), name: 'Regata Canelada Chic', category: 'Blusas', subcategory: 'Regatas', price: 89.9, weight: 150, stock: 10, image: fallbackImages.Blusas, description: 'Regata com decote refinado e caimento que valoriza a silhueta.' },
+
+      { id: crypto.randomUUID(), name: 'Calça Jeans Wide Leg', category: 'Calças', subcategory: 'Calça Jeans', price: 239.9, weight: 550, stock: 9, image: fallbackImages.Calças, description: 'Jeans de cintura alta com lavagem contemporânea e caimento solto.', isNew: true },
+      { id: crypto.randomUUID(), name: 'Calça Reta Milano', category: 'Calças', subcategory: 'Calça Social', price: 259.9, weight: 400, stock: 6, image: fallbackImages.Calças, description: 'Calça reta em tecido premium, perfeita para looks casuais e sociais.', isBestSeller: true },
+      { id: crypto.randomUUID(), name: 'Legging Comfort Alta', category: 'Calças', subcategory: 'Legging', price: 149.9, weight: 280, stock: 12, image: fallbackImages.Calças, description: 'Legging com compressão suave e cós anatômico.' },
+      { id: crypto.randomUUID(), name: 'Shorts Alfaiataria Paris', category: 'Calças', subcategory: 'Shorts', price: 159.9, weight: 260, stock: 8, image: fallbackImages.Calças, description: 'Shorts sofisticado com bolsos e acabamento estruturado.' },
+
+      { id: crypto.randomUUID(), name: 'Essenza Floral 100ml', category: 'Perfumes', subcategory: 'Feminino', price: 189.9, weight: 420, stock: 12, image: fallbackImages.Perfumes, description: 'Perfume feminino floral com toque fresco e acabamento sofisticado.', isNew: true },
+      { id: crypto.randomUUID(), name: 'Noir Élégance 50ml', category: 'Perfumes', subcategory: 'Feminino', price: 299.9, weight: 380, stock: 5, image: fallbackImages.Perfumes, description: 'Fragrância amadeirada intensa com base de sândalo e baunilha.', isBestSeller: true },
+      { id: crypto.randomUUID(), name: 'Essenza Homme Intense 100ml', category: 'Perfumes', subcategory: 'Masculino', price: 249.9, weight: 420, stock: 8, image: fallbackImages.Perfumes, description: 'Fragrância masculina marcante com notas amadeiradas e especiadas.' },
+      { id: crypto.randomUUID(), name: 'Aura Boheme Unissex 100ml', category: 'Perfumes', subcategory: 'Unissex', price: 269.9, weight: 400, stock: 6, image: fallbackImages.Perfumes, description: 'Aroma cítrico aromático envolvente com acordes de bergamota.' },
+
+      { id: crypto.randomUUID(), name: 'Colar Dourado Luz', category: 'Acessórios', subcategory: 'Colares', price: 69.9, weight: 80, stock: 20, image: fallbackImages.Acessórios, description: 'Acessório delicado para compor looks com brilho discreto.', isBestSeller: true },
+      { id: crypto.randomUUID(), name: 'Brinco Argola Dourada', category: 'Acessórios', subcategory: 'Brincos', price: 59.9, weight: 40, stock: 18, image: fallbackImages.Acessórios, description: 'Argola clássica banhada a ouro para o dia a dia.' },
+      { id: crypto.randomUUID(), name: 'Bolsa Couro Baguette', category: 'Acessórios', subcategory: 'Bolsas', price: 349.9, weight: 500, stock: 4, image: fallbackImages.Acessórios, description: 'Bolsa tiracolo em couro estruturado com acabamento premium.', isNew: true },
+      { id: crypto.randomUUID(), name: 'Cinto Fivela Ouro', category: 'Acessórios', subcategory: 'Cintos', price: 89.9, weight: 120, stock: 10, image: fallbackImages.Acessórios, description: 'Cinto fino em couro com fivela minimalista dourada.' },
     ];
   }
 
@@ -121,7 +145,14 @@ const EssenzaApp = (() => {
       }
 
       if (currentSubcategoryFilter) {
-        const matchSub = (p.subcategory === currentSubcategoryFilter || p.category === currentSubcategoryFilter);
+        const normSub = currentSubcategoryFilter.toLowerCase();
+        const kw = normSub.replace(/^vestidos\s+|^calças?\s+|^blusas?\s+/i, '');
+        const matchSub = (
+          (p.subcategory && p.subcategory.toLowerCase() === normSub) ||
+          (p.category && p.category.toLowerCase() === normSub) ||
+          p.name.toLowerCase().includes(kw) ||
+          p.description.toLowerCase().includes(kw)
+        );
         return matchSub && (p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search));
       }
 
@@ -133,7 +164,12 @@ const EssenzaApp = (() => {
     grid.innerHTML = '';
 
     if (!filtered.length) {
-      grid.innerHTML = '<p class="empty-state">Nenhum produto encontrado para esta busca.</p>';
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px;">
+          <p style="font-size: 1.1rem; margin-bottom: 14px; color: var(--muted);">Nenhum produto cadastrado nesta subcategoria no momento.</p>
+          <a class="secondary-link" href="#/loja/${encodeURIComponent(currentFilter || 'todos')}" style="display:inline-block">Ver todos em ${currentFilter || 'todos'}</a>
+        </div>
+      `;
       return;
     }
 
