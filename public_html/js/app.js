@@ -41,6 +41,14 @@ const EssenzaApp = (() => {
     'Cintos': 'Acessórios',
   };
 
+  const subcategoryMap = {
+    'Vestidos':   ['Vestidos Longos', 'Vestidos Curtos', 'Vestidos Midi', 'Vestidos Florais'],
+    'Blusas':     ['T-Shirts', 'Croppeds', 'Blusas Sociais', 'Regatas'],
+    'Calças':     ['Calça Jeans', 'Calça Social', 'Legging', 'Shorts'],
+    'Perfumes':   ['Feminino', 'Masculino', 'Unissex'],
+    'Acessórios': ['Colares', 'Brincos', 'Pulseiras', 'Bolsas', 'Cintos'],
+  };
+
   const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
   /* ── Toast ── */
@@ -245,47 +253,91 @@ const EssenzaApp = (() => {
   }
 
   function handleRouting() {
-    const hash = window.location.hash || '';
-    const match = hash.match(/^#\/loja\/([^/]+)(?:\/([^/]+))?$/);
+    const rawHash = window.location.hash || '';
+    const cleanHash = rawHash.replace(/^#\/?/, '');
     const searchInput = document.getElementById('searchInput');
+    const breadcrumbs = document.getElementById('breadcrumbs');
     const pills = document.getElementById('filterPills');
-    
+
+    const match = cleanHash.match(/^loja\/([^/]+)(?:\/([^/]+))?$/);
+
     if (match) {
       const cat = decodeURIComponent(match[1]).replace(/-/g, ' ');
       const subcat = match[2] ? decodeURIComponent(match[2]).replace(/-/g, ' ') : null;
-      
-      currentFilter = cat;
-      currentSubcategoryFilter = subcat;
-      
-      if (pills) {
-        pills.querySelectorAll('.filter-pill').forEach(p => {
-          p.classList.toggle('active', p.dataset.filter === cat);
-        });
-      }
-      
-      updateCatalogTitle(cat, subcat);
-      if (searchInput) searchInput.value = '';
-      renderProducts();
-      
-      if (hash && hash !== '#') {
-        const target = document.getElementById('loja');
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth' });
+
+      if (cat !== 'todos') {
+        // Ativar modo de Página de Categoria / Subcategoria
+        document.body.classList.add('is-category-page');
+        currentFilter = cat;
+        currentSubcategoryFilter = subcat;
+
+        // Renderizar Breadcrumbs
+        if (breadcrumbs) {
+          if (subcat) {
+            breadcrumbs.innerHTML = `
+              <a href="#">Início</a>
+              <span class="sep">›</span>
+              <a href="#/loja/${encodeURIComponent(cat)}">${cat}</a>
+              <span class="sep">›</span>
+              <span>${subcat}</span>
+            `;
+          } else {
+            breadcrumbs.innerHTML = `
+              <a href="#">Início</a>
+              <span class="sep">›</span>
+              <span>${cat}</span>
+            `;
+          }
         }
+
+        // Renderizar Pills de Subcategorias
+        const subcategories = subcategoryMap[cat];
+        if (pills && subcategories && subcategories.length) {
+          let pillsHtml = `<a class="filter-pill ${!subcat ? 'active' : ''}" href="#/loja/${encodeURIComponent(cat)}">Todos em ${cat}</a>`;
+          subcategories.forEach(s => {
+            const slug = s.replace(/\s+/g, '-');
+            const isActive = subcat === s;
+            pillsHtml += `<a class="filter-pill ${isActive ? 'active' : ''}" href="#/loja/${encodeURIComponent(cat)}/${encodeURIComponent(slug)}">${s}</a>`;
+          });
+          pills.innerHTML = pillsHtml;
+        }
+
+        updateCatalogTitle(cat, subcat);
+        if (searchInput) searchInput.value = '';
+        renderProducts();
+
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        return;
       }
-    } else if (hash === '#loja') {
-      currentFilter = 'todos';
-      currentSubcategoryFilter = null;
-      
-      if (pills) {
-        pills.querySelectorAll('.filter-pill').forEach(p => {
-          p.classList.toggle('active', p.dataset.filter === 'todos');
-        });
-      }
-      
-      updateCatalogTitle('todos', null);
-      if (searchInput) searchInput.value = '';
-      renderProducts();
+    }
+
+    // Modo Página Inicial (Home)
+    document.body.classList.remove('is-category-page');
+    currentFilter = 'todos';
+    currentSubcategoryFilter = null;
+
+    if (breadcrumbs) {
+      breadcrumbs.innerHTML = '';
+    }
+
+    if (pills) {
+      pills.innerHTML = `
+        <button class="filter-pill active" data-filter="todos" type="button">Todos</button>
+        <button class="filter-pill" data-filter="Vestidos" type="button">Vestidos</button>
+        <button class="filter-pill" data-filter="Blusas" type="button">Blusas</button>
+        <button class="filter-pill" data-filter="Calças" type="button">Calças</button>
+        <button class="filter-pill" data-filter="Perfumes" type="button">Perfumes</button>
+        <button class="filter-pill" data-filter="Acessórios" type="button">Acessórios</button>
+      `;
+    }
+
+    updateCatalogTitle('todos', null);
+    if (searchInput) searchInput.value = '';
+    renderProducts();
+
+    if (rawHash === '#loja') {
+      const target = document.getElementById('loja');
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
@@ -298,12 +350,18 @@ const EssenzaApp = (() => {
       pills.addEventListener('click', e => {
         const pill = e.target.closest('.filter-pill');
         if (!pill) return;
-        pills.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        currentFilter = pill.dataset.filter;
-        currentSubcategoryFilter = null;
         
-        window.location.hash = `#/loja/${currentFilter}`;
+        // Se for botão na home
+        if (pill.dataset.filter) {
+          pills.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          const cat = pill.dataset.filter;
+          if (cat === 'todos') {
+            window.location.hash = '';
+          } else {
+            window.location.hash = `#/loja/${encodeURIComponent(cat)}`;
+          }
+        }
       });
     }
 

@@ -726,6 +726,56 @@ p {
 }
 
 /* ============================================================
+   PÁGINA DE CATEGORIA / BREADCRUMBS
+   ============================================================ */
+
+.breadcrumbs {
+  display: none;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 28px clamp(20px, 5vw, 76px) 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.breadcrumbs a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.breadcrumbs a:hover {
+  color: var(--gold-dark);
+}
+
+.breadcrumbs span:not(.sep) {
+  color: var(--gold-dark);
+  font-weight: 600;
+}
+
+.breadcrumbs .sep {
+  color: #b8aea0;
+  font-size: 0.85rem;
+}
+
+body.is-category-page .hero,
+body.is-category-page .editorial-intro,
+body.is-category-page .category-showcase {
+  display: none !important;
+}
+
+body.is-category-page .breadcrumbs {
+  display: flex;
+}
+
+body.is-category-page .section-heading {
+  padding-top: 16px;
+  border-top: none;
+}
+
+/* ============================================================
    SEÇÃO: CATÁLOGO / FILTROS
    ============================================================ */
 
