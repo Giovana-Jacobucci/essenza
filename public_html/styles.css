@@ -292,6 +292,7 @@ p {
   object-fit: contain;
   object-position: center;
   mix-blend-mode: multiply;
+  transform: translateY(-4px);
 }
 
 /* Nav desktop */

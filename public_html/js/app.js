@@ -18,6 +18,29 @@ const EssenzaApp = (() => {
     Roupas:     'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80',
   };
 
+  const parentCategoryMap = {
+    'Vestidos Longos': 'Vestidos',
+    'Vestidos Curtos': 'Vestidos',
+    'Vestidos Midi': 'Vestidos',
+    'Vestidos Florais': 'Vestidos',
+    'T-Shirts': 'Blusas',
+    'Croppeds': 'Blusas',
+    'Blusas Sociais': 'Blusas',
+    'Regatas': 'Blusas',
+    'Calça Jeans': 'Calças',
+    'Calça Social': 'Calças',
+    'Legging': 'Calças',
+    'Shorts': 'Calças',
+    'Feminino': 'Perfumes',
+    'Masculino': 'Perfumes',
+    'Unissex': 'Perfumes',
+    'Colares': 'Acessórios',
+    'Brincos': 'Acessórios',
+    'Pulseiras': 'Acessórios',
+    'Bolsas': 'Acessórios',
+    'Cintos': 'Acessórios',
+  };
+
   const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
   /* ── Toast ── */
@@ -53,6 +76,7 @@ const EssenzaApp = (() => {
       sku: p.sku || null,
       name: p.name,
       category: p.category || 'Outros',
+      subcategory: p.subcategory || null,
       price: parseFloat(p.price),
       compare_price: p.compare_price ? parseFloat(p.compare_price) : null,
       weight: parseInt(p.weight) || 0,
@@ -84,9 +108,18 @@ const EssenzaApp = (() => {
 
     const search = (searchInput?.value || '').trim().toLowerCase();
     const filtered = products.filter(p => {
-      const matchCat = currentFilter === 'todos' || p.category === currentFilter;
-      const matchSearch = p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
-      return matchCat && matchSearch;
+      if (currentFilter === 'todos') {
+        return p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
+      }
+
+      if (currentSubcategoryFilter) {
+        const matchSub = (p.subcategory === currentSubcategoryFilter || p.category === currentSubcategoryFilter);
+        return matchSub && (p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search));
+      }
+
+      const pParent = parentCategoryMap[p.category] || p.category;
+      const matchCat = (p.category === currentFilter || pParent === currentFilter);
+      return matchCat && (p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search));
     });
 
     grid.innerHTML = '';
@@ -195,6 +228,67 @@ const EssenzaApp = (() => {
     items.forEach(el => observer.observe(el));
   }
 
+  /* ── Router and Filter Title Update ── */
+  let currentSubcategoryFilter = null;
+
+  function updateCatalogTitle(cat, subcat) {
+    const titleEl = document.getElementById('catalogTitle');
+    if (!titleEl) return;
+    
+    if (subcat) {
+      titleEl.textContent = subcat;
+    } else if (cat && cat !== 'todos') {
+      titleEl.textContent = cat;
+    } else {
+      titleEl.textContent = 'Produtos em destaque';
+    }
+  }
+
+  function handleRouting() {
+    const hash = window.location.hash || '';
+    const match = hash.match(/^#\/loja\/([^/]+)(?:\/([^/]+))?$/);
+    const searchInput = document.getElementById('searchInput');
+    const pills = document.getElementById('filterPills');
+    
+    if (match) {
+      const cat = decodeURIComponent(match[1]).replace(/-/g, ' ');
+      const subcat = match[2] ? decodeURIComponent(match[2]).replace(/-/g, ' ') : null;
+      
+      currentFilter = cat;
+      currentSubcategoryFilter = subcat;
+      
+      if (pills) {
+        pills.querySelectorAll('.filter-pill').forEach(p => {
+          p.classList.toggle('active', p.dataset.filter === cat);
+        });
+      }
+      
+      updateCatalogTitle(cat, subcat);
+      if (searchInput) searchInput.value = '';
+      renderProducts();
+      
+      if (hash && hash !== '#') {
+        const target = document.getElementById('loja');
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    } else if (hash === '#loja') {
+      currentFilter = 'todos';
+      currentSubcategoryFilter = null;
+      
+      if (pills) {
+        pills.querySelectorAll('.filter-pill').forEach(p => {
+          p.classList.toggle('active', p.dataset.filter === 'todos');
+        });
+      }
+      
+      updateCatalogTitle('todos', null);
+      if (searchInput) searchInput.value = '';
+      renderProducts();
+    }
+  }
+
   /* ── Filter Pills ── */
   function initFilters() {
     const pills = document.getElementById('filterPills');
@@ -207,8 +301,9 @@ const EssenzaApp = (() => {
         pills.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
         currentFilter = pill.dataset.filter;
-        if (searchInput) searchInput.value = '';
-        renderProducts();
+        currentSubcategoryFilter = null;
+        
+        window.location.hash = `#/loja/${currentFilter}`;
       });
     }
 
@@ -216,20 +311,7 @@ const EssenzaApp = (() => {
       searchInput.addEventListener('input', renderProducts);
     }
 
-    // Category links (hero, footer, nav)
-    document.querySelectorAll('[data-category-link]').forEach(link => {
-      link.addEventListener('click', () => {
-        const cat = link.dataset.categoryLink;
-        currentFilter = cat;
-        if (pills) {
-          pills.querySelectorAll('.filter-pill').forEach(p => {
-            p.classList.toggle('active', p.dataset.filter === cat);
-          });
-        }
-        if (searchInput) searchInput.value = '';
-        renderProducts();
-      });
-    });
+    window.addEventListener('hashchange', handleRouting);
   }
 
   /* ── Scroll to Top ── */
@@ -269,8 +351,8 @@ const EssenzaApp = (() => {
   /* ── Init ── */
   async function init() {
     products = await loadProducts();
-    renderProducts();
     initFilters();
+    handleRouting();
     initScrollTop();
     initWhatsApp();
     observeReveal();

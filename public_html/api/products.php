@@ -123,6 +123,17 @@ switch (true) {
 
         $id = $data['id'] ?? generateUUID();
 
+        $categoryName = !empty($data['subcategory']) ? $data['subcategory'] : (!empty($data['category']) ? $data['category'] : null);
+        $categoryId = null;
+        if ($categoryName) {
+            $catStmt = $pdo->prepare('SELECT id FROM categories WHERE name = ? LIMIT 1');
+            $catStmt->execute([$categoryName]);
+            $catRow = $catStmt->fetch();
+            if ($catRow) {
+                $categoryId = $catRow['id'];
+            }
+        }
+
         $stmt = $pdo->prepare(
             'INSERT INTO products (id, sku, name, slug, category_id, brand_id, price, compare_price, weight, stock, image, description, short_description, is_new, is_best_seller)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
@@ -132,7 +143,7 @@ switch (true) {
             $data['sku'] ?? null,
             $data['name'],
             $data['slug'] ?? null,
-            $data['category_id'] ?? null,
+            $categoryId,
             $data['brand_id'] ?? null,
             $data['price'],
             $data['compare_price'] ?? null,
@@ -174,6 +185,17 @@ switch (true) {
             jsonError('Produto não encontrado', 404);
         }
 
+        $categoryName = !empty($data['subcategory']) ? $data['subcategory'] : (!empty($data['category']) ? $data['category'] : null);
+        $categoryId = null;
+        if ($categoryName) {
+            $catStmt = $pdo->prepare('SELECT id FROM categories WHERE name = ? LIMIT 1');
+            $catStmt->execute([$categoryName]);
+            $catRow = $catStmt->fetch();
+            if ($catRow) {
+                $categoryId = $catRow['id'];
+            }
+        }
+
         $stmt = $pdo->prepare(
             'UPDATE products SET sku = ?, name = ?, slug = ?, category_id = ?, brand_id = ?,
              price = ?, compare_price = ?, weight = ?, stock = ?, image = ?, description = ?,
@@ -184,7 +206,7 @@ switch (true) {
             $data['sku'] ?? null,
             $data['name'],
             $data['slug'] ?? null,
-            $data['category_id'] ?? null,
+            $categoryId,
             $data['brand_id'] ?? null,
             $data['price'],
             $data['compare_price'] ?? null,
