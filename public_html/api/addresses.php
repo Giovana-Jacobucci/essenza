@@ -67,7 +67,7 @@ switch (true) {
         break;
 
     // ── PUT /api/addresses/{id} ──
-    case $method === 'PUT' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'PUT' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $addressId = $m[1];
         $data = getJsonBody();
 
@@ -108,7 +108,7 @@ switch (true) {
         break;
 
     // ── DELETE /api/addresses/{id} ──
-    case $method === 'DELETE' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'DELETE' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $addressId = $m[1];
 
         $stmt = $pdo->prepare('DELETE FROM addresses WHERE id = ? AND user_id = ?');

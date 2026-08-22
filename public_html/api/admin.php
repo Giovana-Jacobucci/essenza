@@ -183,7 +183,7 @@ switch (true) {
         break;
 
     // ── GET /api/admin/orders/{id} ── (detalhes completos do pedido)
-    case $method === 'GET' && preg_match('#^/orders/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'GET' && preg_match('#^/orders/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $orderId = $m[1];
 
         $stmt = $pdo->prepare(
@@ -238,7 +238,7 @@ switch (true) {
         break;
 
     // ── PUT /api/admin/orders/{id}/status ── (alterar status)
-    case $method === 'PUT' && preg_match('#^/orders/([a-f0-9-]{36})/status$#', $subPath, $m):
+    case $method === 'PUT' && preg_match('#^/orders/([a-zA-Z0-9_-]+)/status$#', $subPath, $m):
         $orderId = $m[1];
         $data = getJsonBody();
         $newStatus = $data['status'] ?? '';
@@ -311,7 +311,7 @@ switch (true) {
         break;
 
     // ── GET /api/admin/customers/{id} ──
-    case $method === 'GET' && preg_match('#^/customers/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'GET' && preg_match('#^/customers/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $customerId = $m[1];
 
         $stmt = $pdo->prepare(

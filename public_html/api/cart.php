@@ -157,7 +157,7 @@ switch (true) {
         break;
 
     // ── DELETE /api/cart/remove/{product_id} ──
-    case $method === 'DELETE' && preg_match('#^/remove/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'DELETE' && preg_match('#^/remove/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $productId = $m[1];
         $cartId = getOrCreateCart($pdo, $userId);
 

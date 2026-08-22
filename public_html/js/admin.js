@@ -292,13 +292,16 @@ const EssenzaAdmin = (() => {
     try {
       const product = await api(`/api/products/${productId}`);
       openProductForm(product);
-    } catch {}
+    } catch (err) {
+      if (window.EssenzaApp) EssenzaApp.showToast(err.message || 'Erro ao carregar produto', '⚠️');
+    }
   }
 
   function openProductForm(product = null) {
     const form = document.getElementById('adminProductForm');
     if (!form) return;
-    form.style.display = '';
+    form.style.display = 'block';
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     if (product) {
       form.querySelector('#pId').value = product.id;

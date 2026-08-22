@@ -64,7 +64,7 @@ switch (true) {
         break;
 
     // ── GET /api/products/{id} ── (público)
-    case $method === 'GET' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'GET' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $productId = $m[1];
 
         $stmt = $pdo->prepare(
@@ -171,7 +171,7 @@ switch (true) {
         break;
 
     // ── PUT /api/products/{id} ── (admin)
-    case $method === 'PUT' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'PUT' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $admin = Auth::requireAdmin();
         $productId = $m[1];
         $data = getJsonBody();
@@ -240,7 +240,7 @@ switch (true) {
         break;
 
     // ── DELETE /api/products/{id} ── (admin)
-    case $method === 'DELETE' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'DELETE' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $admin = Auth::requireAdmin();
         $productId = $m[1];
 

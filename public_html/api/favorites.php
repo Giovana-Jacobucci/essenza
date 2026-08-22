@@ -53,7 +53,7 @@ switch (true) {
         break;
 
     // ── DELETE /api/favorites/{product_id} ──
-    case $method === 'DELETE' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'DELETE' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $productId = $m[1];
 
         $stmt = $pdo->prepare('DELETE FROM favorites WHERE user_id = ? AND product_id = ?');
@@ -63,7 +63,7 @@ switch (true) {
         break;
 
     // ── GET /api/favorites/check/{product_id} ──
-    case $method === 'GET' && preg_match('#^/check/([a-f0-9-]{36})$#', $subPath, $m):
+    case $method === 'GET' && preg_match('#^/check/([a-zA-Z0-9_-]+)$#', $subPath, $m):
         $productId = $m[1];
 
         $stmt = $pdo->prepare('SELECT id FROM favorites WHERE user_id = ? AND product_id = ?');
