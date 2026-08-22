@@ -9,8 +9,8 @@ define('APP_ENV', 'production');
 
 // ── Banco de dados ──
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'u560112854_9gSmK');
-define('DB_USER', 'u560112854_99P7c');
+define('DB_NAME', 'u560112854_essenza_banco');
+define('DB_USER', 'u560112854_essenza');
 define('DB_PASS', 'Donadel2469');
 define('DB_CHARSET', 'utf8mb4');
 
