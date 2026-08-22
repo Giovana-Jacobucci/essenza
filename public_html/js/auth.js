@@ -83,6 +83,8 @@ const EssenzaAuth = (() => {
 
     if (!userMenu) return;
 
+    const wrap = userMenu.closest('.user-menu-wrap');
+
     if (currentUser) {
       // Logado — mostrar menu do usuário
       const initials = currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -96,6 +98,7 @@ const EssenzaAuth = (() => {
 
       if (authActions) authActions.style.display = 'none';
       if (adminLink) adminLink.style.display = currentUser.role === 'admin' ? '' : 'none';
+      if (wrap) wrap.classList.add('logged-in');
     } else {
       // Deslogado — mostrar ícone genérico
       userMenu.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
@@ -103,6 +106,7 @@ const EssenzaAuth = (() => {
 
       if (authActions) authActions.style.display = '';
       if (adminLink) adminLink.style.display = 'none';
+      if (wrap) wrap.classList.remove('logged-in');
     }
   }
 

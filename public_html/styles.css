@@ -1909,7 +1909,7 @@ output,
   z-index: 1000;
   margin-top: 8px;
 }
-.user-menu-wrap:hover .user-dropdown,
+.user-menu-wrap.logged-in:hover .user-dropdown,
 .user-dropdown.open {
   opacity: 1;
   visibility: visible;
