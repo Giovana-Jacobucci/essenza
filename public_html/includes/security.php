@@ -68,24 +68,29 @@ class Security {
      * Retorna true se dentro do limite, false se excedido
      */
     public static function checkRateLimit(string $action, ?string $ip = null): bool {
-        $ip = $ip ?? self::getClientIp();
-        $pdo = Database::getInstance();
+        try {
+            $ip = $ip ?? self::getClientIp();
+            $pdo = Database::getInstance();
 
-        // Limpar tentativas expiradas
-        $stmt = $pdo->prepare(
-            'DELETE FROM rate_limits WHERE action = ? AND first_attempt < DATE_SUB(NOW(), INTERVAL ? SECOND)'
-        );
-        $stmt->execute([$action, RATE_LIMIT_WINDOW]);
+            // Limpar tentativas expiradas
+            $stmt = $pdo->prepare(
+                'DELETE FROM rate_limits WHERE action = ? AND first_attempt < DATE_SUB(NOW(), INTERVAL ? SECOND)'
+            );
+            $stmt->execute([$action, RATE_LIMIT_WINDOW]);
 
-        // Verificar tentativas atuais
-        $stmt = $pdo->prepare(
-            'SELECT attempts FROM rate_limits WHERE ip_address = ? AND action = ? LIMIT 1'
-        );
-        $stmt->execute([$ip, $action]);
-        $row = $stmt->fetch();
+            // Verificar tentativas atuais
+            $stmt = $pdo->prepare(
+                'SELECT attempts FROM rate_limits WHERE ip_address = ? AND action = ? LIMIT 1'
+            );
+            $stmt->execute([$ip, $action]);
+            $row = $stmt->fetch();
 
-        if ($row && $row['attempts'] >= RATE_LIMIT_MAX_ATTEMPTS) {
-            return false; // Limite excedido
+            if ($row && $row['attempts'] >= RATE_LIMIT_MAX_ATTEMPTS) {
+                return false; // Limite excedido
+            }
+        } catch (\Throwable $e) {
+            // Se a tabela rate_limits não existir ainda, ignorar silenciosamente
+            return true;
         }
 
         return true;
@@ -95,25 +100,29 @@ class Security {
      * Registra uma tentativa de ação
      */
     public static function recordAttempt(string $action, ?string $ip = null): void {
-        $ip = $ip ?? self::getClientIp();
-        $pdo = Database::getInstance();
+        try {
+            $ip = $ip ?? self::getClientIp();
+            $pdo = Database::getInstance();
 
-        $stmt = $pdo->prepare(
-            'SELECT id, attempts FROM rate_limits WHERE ip_address = ? AND action = ? LIMIT 1'
-        );
-        $stmt->execute([$ip, $action]);
-        $row = $stmt->fetch();
-
-        if ($row) {
             $stmt = $pdo->prepare(
-                'UPDATE rate_limits SET attempts = attempts + 1, last_attempt = NOW() WHERE id = ?'
-            );
-            $stmt->execute([$row['id']]);
-        } else {
-            $stmt = $pdo->prepare(
-                'INSERT INTO rate_limits (ip_address, action) VALUES (?, ?)'
+                'SELECT id, attempts FROM rate_limits WHERE ip_address = ? AND action = ? LIMIT 1'
             );
             $stmt->execute([$ip, $action]);
+            $row = $stmt->fetch();
+
+            if ($row) {
+                $stmt = $pdo->prepare(
+                    'UPDATE rate_limits SET attempts = attempts + 1, last_attempt = NOW() WHERE id = ?'
+                );
+                $stmt->execute([$row['id']]);
+            } else {
+                $stmt = $pdo->prepare(
+                    'INSERT INTO rate_limits (ip_address, action) VALUES (?, ?)'
+                );
+                $stmt->execute([$ip, $action]);
+            }
+        } catch (\Throwable $e) {
+            // Ignorar se a tabela rate_limits não existir
         }
     }
 
@@ -121,10 +130,14 @@ class Security {
      * Reseta o rate limit para um IP/ação (após login bem-sucedido)
      */
     public static function resetRateLimit(string $action, ?string $ip = null): void {
-        $ip = $ip ?? self::getClientIp();
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('DELETE FROM rate_limits WHERE ip_address = ? AND action = ?');
-        $stmt->execute([$ip, $action]);
+        try {
+            $ip = $ip ?? self::getClientIp();
+            $pdo = Database::getInstance();
+            $stmt = $pdo->prepare('DELETE FROM rate_limits WHERE ip_address = ? AND action = ?');
+            $stmt->execute([$ip, $action]);
+        } catch (\Throwable $e) {
+            // Ignorar se a tabela rate_limits não existir
+        }
     }
 
     /**
