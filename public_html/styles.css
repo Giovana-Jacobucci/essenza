@@ -475,6 +475,10 @@ p {
 }
 
 .hero-copy h1 {
+  font-size: clamp(2.4rem, 4.2vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
   animation: fadeSlideIn 0.6s 0.2s ease both;
 }
 
