@@ -410,8 +410,7 @@ p {
   position: relative;
   display: grid;
   grid-template-columns: minmax(300px, 52vw) minmax(300px, 1fr);
-  min-height: calc(100vh - 74px);
-  max-height: 780px;
+  min-height: min(calc(100vh - 74px), 780px);
   border-bottom: 1px solid var(--line);
   overflow: hidden;
 }
@@ -475,8 +474,8 @@ p {
 }
 
 .hero-copy h1 {
-  font-size: clamp(2.4rem, 4.2vw, 4.5rem);
-  line-height: 1.05;
+  font-size: clamp(3rem, 5.8vw, 5.5rem);
+  line-height: 0.95;
   letter-spacing: -0.02em;
   margin-bottom: 24px;
   animation: fadeSlideIn 0.6s 0.2s ease both;
