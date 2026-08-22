@@ -33,6 +33,11 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_users_reset_token ON users(reset_token);
 
+-- Inserir administrador padrão inicial
+INSERT INTO users (id, name, email, cpf, phone, password, role, is_active) VALUES
+(UUID(), 'Giovana Jacobucci', 'giovanadjacobucci@gmail.com', '00000000000', '', '$2y$10$wtU.6oq/rpzwySqxsYw5K.67nLWV/Su45o15l/pqx.TvIzoMZ9lDi', 'admin', 1)
+ON DUPLICATE KEY UPDATE name=VALUES(name);
+
 -- ============================================================
 -- 2. ENDEREÇOS
 -- ============================================================
