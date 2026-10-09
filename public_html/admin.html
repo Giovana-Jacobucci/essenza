@@ -172,7 +172,6 @@
                   <th>Nº Pedido</th>
                   <th>Data</th>
                   <th>Cliente</th>
-                  <th>Endereço</th>
                   <th>Total</th>
                   <th>Pagamento</th>
                   <th>Status</th>
@@ -180,7 +179,7 @@
               </thead>
               <tbody id="ordersTable">
                 <tr>
-                  <td colspan="7" class="empty-state">Carregando pedidos...</td>
+                  <td colspan="6" class="empty-state">Carregando pedidos...</td>
                 </tr>
               </tbody>
             </table>
@@ -236,27 +235,11 @@
 
             <div class="form-row">
               <label style="flex: 1;">
-                URL da Imagem
-                <input id="pImage" type="url" placeholder="https://exemplo.com/imagem.jpg" required />
-              </label>
-            </div>
-
-            <div class="form-row">
-              <label style="flex: 1;">
-                Categoria
-                <select id="pCategory">
-                  <option value="Vestidos">Vestidos</option>
-                  <option value="Blusas">Blusas</option>
-                  <option value="Calças">Calças</option>
-                  <option value="Perfumes">Perfumes</option>
-                  <option value="Acessórios">Acessórios</option>
-                </select>
-              </label>
-              <label style="flex: 1;">
-                Subcategoria
-                <select id="pSubcategory">
-                  <option value="">— Selecione —</option>
-                </select>
+                Foto do produto
+                <input id="pImageFile" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" aria-describedby="pImageHelp" />
+                <small id="pImageHelp">Escolha uma foto PNG, JPG ou WebP do computador, de até 5 MB. Ao editar, deixe em branco para manter a foto atual.</small>
+                <input id="pImage" type="hidden" />
+                <img id="pImagePreview" alt="Prévia da capa do anúncio" hidden style="width:180px;max-width:100%;height:180px;object-fit:contain;margin-top:12px" />
               </label>
             </div>
 
@@ -267,19 +250,28 @@
               </label>
             </div>
 
-            <div class="form-row">
-              <label>
-                Tags do Produto
-                <div class="tag-toggles">
-                  <button type="button" class="tag-toggle" id="pNewToggle" data-target="pNew">
-                    <span class="tag-toggle-icon">✦</span> Novidade
-                  </button>
-                  <button type="button" class="tag-toggle" id="pBestSellerToggle" data-target="pBestSeller">
-                    <span class="tag-toggle-icon">🔥</span> Mais Vendido
-                  </button>
-                </div>
-                <input type="hidden" id="pNew" value="0" />
-                <input type="hidden" id="pBestSeller" value="0" />
+            <div class="form-row"><label>Categoria
+              <select id="pCategory" required>
+                <option value="">Selecione a categoria</option>
+                <option>Perfumes</option>
+                <option>Body Splash</option>
+                <option>Cuidados Corporais</option>
+                <option>Vestidos</option>
+                <option>Blusas</option>
+                <option>Calças</option>
+                <option>Roupas</option>
+                <option>Acessórios</option>
+              </select>
+            </label></div>
+            <p id="productFormMessage" role="status" aria-live="polite" style="display:none;color:#c53030;background:#fff5f5;border:1px solid #feb2b2;border-radius:6px;padding:8px 12px;margin:10px 0;font-weight:600;font-size:14px;"></p>
+            <div class="form-row checkbox-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="pNew" />
+                Novidade (Exibir tag Novo)
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="pBestSeller" />
+                Mais Vendido (Exibir em Destaque)
               </label>
             </div>
 
@@ -299,13 +291,12 @@
                   <th>Categoria</th>
                   <th>Preço</th>
                   <th>Estoque</th>
-                  <th>Tags</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody id="productsTable">
                 <tr>
-                  <td colspan="7" class="empty-state">Carregando produtos...</td>
+                  <td colspan="6" class="empty-state">Carregando produtos...</td>
                 </tr>
               </tbody>
             </table>
@@ -365,8 +356,8 @@
     <!-- ── Toast container para notificações ── -->
     <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
 
-    <script src="js/auth.js"></script>
-    <script src="js/admin.js"></script>
+    <script src="js/auth.js?v=20261009v2"></script>
+    <script src="js/admin.js?v=20261009v2"></script>
     <script>
       // Atualizar nome do usuário logado no Header do Admin
       document.addEventListener('DOMContentLoaded', () => {

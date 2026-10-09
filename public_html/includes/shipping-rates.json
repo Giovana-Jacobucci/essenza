@@ -1,0 +1,110 @@
+{
+  "SP": {
+    "price": 16.9,
+    "days": "2 a 4 dias úteis"
+  },
+  "RJ": {
+    "price": 22.9,
+    "days": "3 a 5 dias úteis"
+  },
+  "MG": {
+    "price": 21.9,
+    "days": "3 a 5 dias úteis"
+  },
+  "ES": {
+    "price": 24.9,
+    "days": "4 a 6 dias úteis"
+  },
+  "PR": {
+    "price": 23.9,
+    "days": "3 a 6 dias úteis"
+  },
+  "SC": {
+    "price": 25.9,
+    "days": "4 a 7 dias úteis"
+  },
+  "RS": {
+    "price": 27.9,
+    "days": "4 a 8 dias úteis"
+  },
+  "DF": {
+    "price": 28.9,
+    "days": "4 a 7 dias úteis"
+  },
+  "GO": {
+    "price": 29.9,
+    "days": "5 a 8 dias úteis"
+  },
+  "MT": {
+    "price": 34.9,
+    "days": "6 a 10 dias úteis"
+  },
+  "MS": {
+    "price": 32.9,
+    "days": "5 a 9 dias úteis"
+  },
+  "BA": {
+    "price": 33.9,
+    "days": "6 a 10 dias úteis"
+  },
+  "SE": {
+    "price": 35.9,
+    "days": "7 a 11 dias úteis"
+  },
+  "AL": {
+    "price": 36.9,
+    "days": "7 a 11 dias úteis"
+  },
+  "PE": {
+    "price": 36.9,
+    "days": "7 a 11 dias úteis"
+  },
+  "PB": {
+    "price": 38.9,
+    "days": "7 a 12 dias úteis"
+  },
+  "RN": {
+    "price": 39.9,
+    "days": "7 a 12 dias úteis"
+  },
+  "CE": {
+    "price": 39.9,
+    "days": "7 a 12 dias úteis"
+  },
+  "PI": {
+    "price": 41.9,
+    "days": "8 a 13 dias úteis"
+  },
+  "MA": {
+    "price": 42.9,
+    "days": "8 a 13 dias úteis"
+  },
+  "PA": {
+    "price": 45.9,
+    "days": "9 a 15 dias úteis"
+  },
+  "AM": {
+    "price": 54.9,
+    "days": "10 a 18 dias úteis"
+  },
+  "AC": {
+    "price": 57.9,
+    "days": "11 a 19 dias úteis"
+  },
+  "RO": {
+    "price": 52.9,
+    "days": "10 a 17 dias úteis"
+  },
+  "RR": {
+    "price": 59.9,
+    "days": "12 a 20 dias úteis"
+  },
+  "AP": {
+    "price": 58.9,
+    "days": "12 a 20 dias úteis"
+  },
+  "TO": {
+    "price": 44.9,
+    "days": "8 a 14 dias úteis"
+  }
+}

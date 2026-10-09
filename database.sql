@@ -84,7 +84,10 @@ INSERT INTO categories (name, slug, sort_order) VALUES
 ('Vestidos',   'vestidos',   2),
 ('Blusas',     'blusas',     3),
 ('Calças',     'calcas',     4),
-('Acessórios', 'acessorios', 5);
+('Acessórios', 'acessorios', 5),
+('Body Splash', 'body-splash', 6),
+('Cuidados Corporais', 'cuidados-corporais', 7),
+('Roupas', 'roupas', 8);
 
 -- Subcategorias
 INSERT INTO categories (name, slug, parent_id, sort_order) VALUES
@@ -349,7 +352,7 @@ CREATE INDEX idx_osh_order ON order_status_history(order_id);
 CREATE TABLE IF NOT EXISTS payments (
     id              CHAR(36) PRIMARY KEY,
     order_id        CHAR(36) NOT NULL,
-    method          ENUM('pix','credit_card','boleto','debit_card') NOT NULL,
+    method          ENUM('pix','credit_card','boleto','debit_card','mercado_pago') NOT NULL,
     status          ENUM('pending','approved','rejected','refunded') NOT NULL DEFAULT 'pending',
     amount          DECIMAL(10,2) NOT NULL,
     transaction_id  VARCHAR(255) DEFAULT NULL,

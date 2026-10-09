@@ -1,9 +1,33 @@
 # ESSENZA — E-commerce System (v2.0)
 
+### Mercado Pago Checkout Pro
+
+O checkout local oferece **Mercado Pago (Pix, cartão ou boleto)**. A cliente entra na conta, cria o pedido e é redirecionada ao Checkout Pro. O status só muda para pago após o webhook consultar o pagamento na API do Mercado Pago e conferir valor, moeda e pedido. O retorno pelo navegador não aprova o pedido.
+
+**Recebedora definida:** a chave Pix `biancaaraujo.s@hotmail.com` já está cadastrada no Mercado Pago, conforme informado. O Checkout Pro não recebe uma chave Pix como parâmetro de destino: os valores entram na conta vendedora dona das credenciais usadas no servidor. Antes de ativar pagamentos reais, confirmar no painel Mercado Pago que o `MP_ACCESS_TOKEN` de produção pertence à mesma conta em que essa chave está cadastrada. Não usar credenciais de outra conta.
+
+Para publicar:
+
+1. Executar `migrations/2026-10-09-mercado-pago.sql` no banco já existente antes de enviar o código. Em uma instalação nova, `database.sql` já contém o método.
+2. Configurar `MP_ACCESS_TOKEN` da **conta Mercado Pago onde está cadastrada a chave `biancaaraujo.s@hotmail.com`** somente no servidor. Configurar também `MP_EXPECTED_COLLECTOR_ID` com o Cust ID dessa mesma conta, conferido independentemente no painel Mercado Pago. Na Hostinger, pode-se definir esses nomes como constantes em `public_html/includes/config.php` (arquivo já protegido por `includes/.htaccess`) se não houver mecanismo de variáveis de ambiente. A API de preferências retorna `collector_id` e o checkout bloqueia links de outra conta. Não colocar o token em HTML, JavaScript, ZIP de implantação ou Git.
+3. Configurar webhook de **Pagamentos** no painel Mercado Pago para `https://essenzamodaeperfumaria.com/api/mercado-pago/webhook` e salvar a chave de assinatura como `MP_WEBHOOK_SECRET` no servidor, pelo mesmo mecanismo do passo 2. O PHP precisa da extensão cURL.
+4. Usar `MP_USE_SANDBOX=1` somente com credenciais de teste, quando for preciso redirecionar ao checkout de teste. Em produção, deixar sem essa variável.
+5. Validar em ambiente de teste: preferência criada, redirecionamento, pagamento aprovado, recusado e pendente, webhook repetido, total com frete e atualização de pedido no painel. Só depois publicar os arquivos.
+
+Os meios efetivamente oferecidos pelo Checkout Pro dependem da configuração da conta Mercado Pago. A interface nova apresenta somente o Checkout Pro; Pix, cartão e boleto são escolhidos no ambiente do provedor. O backend ainda reconhece pedidos históricos com métodos anteriores.
+
 Professional e-commerce platform for women's fashion and perfumaria, optimized for production on shared hosting (Hostinger) with a lightweight, secure PHP backend and modern vanilla JS/CSS frontend.
 
 Production URL: [https://essenzamodaeperfumaria.com/](https://essenzamodaeperfumaria.com/)  
 Local Dev Server: [http://localhost:5500](http://localhost:5500) (running Node.js with built-in mock database engine)
+
+### Atualização da loja — Coleção Outono 2026
+
+- Campanha “✦ Coleção Outono 2026” e navegação com Perfumes, Body Splash, Cuidados Corporais, Roupas e Acessórios.
+- No painel administrativo, selecione a categoria e escolha uma foto PNG, JPG ou WebP do computador, de até 5 MB. A imagem tem prévia; editar sem escolher outro arquivo mantém a foto atual. Os arquivos ficam em `public_html/uploads/products`, que precisa permitir escrita pelo PHP.
+- Frete grátis na primeira compra, limitado a um pedido por CPF cadastrado, sem valor mínimo. Pedidos pendentes e cancelados também entram no histórico. As demais compras usam a tabela de frete por estado e peso existente.
+- As novas categorias são criadas ao salvar produtos; não é necessário reimportar o banco existente. A validação do benefício é feita novamente no servidor ao criar o pedido.
+- Validação local: `node tests/store-updates.cjs`. O teste usa um banco temporário e remove a imagem enviada ao terminar. O servidor local simula a API; a implantação PHP/MySQL deve ser validada no ambiente de hospedagem.
 
 ---
 

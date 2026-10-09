@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.join(__dirname, 'public_html');
-const dbPath = path.join(__dirname, 'serve-local-db.json');
+const dbPath = process.env.ESSENZA_TEST_DB || path.join(__dirname, 'serve-local-db.json');
 const port = Number(process.env.PORT || 5500);
 
 const types = {
@@ -13,6 +13,7 @@ const types = {
   ".jpeg": "image/jpeg",
   ".jpg": "image/jpeg",
   ".png": "image/png",
+  ".webp": "image/webp",
   ".svg": "image/svg+xml",
   ".md": "text/markdown; charset=utf-8",
 };
@@ -363,6 +364,36 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (subpath === '/orders/shipping-eligibility' && method === 'GET') {
+      if (!currentUser) { res.writeHead(401); res.end(JSON.stringify({error:'Faça login'})); return; }
+      const cpf = currentUser.cpf.replace(/\D/g, '');
+      const eligible = !db.orders.some(o => db.users.some(u => u.id === o.user_id && u.cpf.replace(/\D/g, '') === cpf));
+      res.end(JSON.stringify({eligible})); return;
+    }
+
+    if (subpath === '/products/upload' && method === 'POST') {
+      if (!currentUser || currentUser.role !== 'admin') { res.writeHead(403); res.end(JSON.stringify({error:'Não autorizado'})); return; }
+      const body = await getJsonBody(req);
+      const value = typeof body.image === 'string' ? body.image : '';
+      const match = /^data:image\/(png|jpe?g|webp);base64,(.+)$/s.exec(value);
+      const rawBase64 = match ? match[2].replace(/\s+/g, '') : '';
+      const bytes = rawBase64 ? Buffer.from(rawBase64, 'base64') : Buffer.alloc(0);
+      const isPng = match?.[1] === 'png' && bytes.length >= 33 && bytes.subarray(0,8).toString('hex') === '89504e470d0a1a0a';
+      const isJpeg = (match?.[1] === 'jpeg' || match?.[1] === 'jpg') && bytes.length >= 4 && bytes.subarray(0,3).toString('hex') === 'ffd8ff';
+      const isWebp = match?.[1] === 'webp' && bytes.length >= 12 && bytes.toString('ascii',0,4) === 'RIFF' && bytes.toString('ascii',8,12) === 'WEBP';
+      if (bytes.length > 8 * 1024 * 1024 || !(isPng || isJpeg || isWebp)) {
+        res.writeHead(400); res.end(JSON.stringify({error:'Selecione uma foto PNG, JPG ou WebP válida de até 8 MB.'})); return;
+      }
+      const ext = isPng ? 'png' : (isWebp ? 'webp' : 'jpg');
+      const name = require('node:crypto').randomUUID() + '.' + ext;
+      const dir = path.join(root, 'uploads', 'products');
+      try {
+        fs.mkdirSync(dir, {recursive:true}); fs.writeFileSync(path.join(dir,name),bytes);
+        res.writeHead(201); res.end(JSON.stringify({image:'/uploads/products/'+name}));
+      } catch { res.writeHead(500); res.end(JSON.stringify({error:'Não foi possível salvar a imagem'})); }
+      return;
+    }
+
     // ── Endpoint: /api/products ──
     if (subpath === "/products" && method === "GET") {
       const search = parsedUrl.searchParams.get("search") || "";
@@ -443,6 +474,7 @@ const server = http.createServer(async (req, res) => {
           price: body.price !== undefined ? parseFloat(body.price) : db.products[prodIdx].price,
           weight: body.weight !== undefined ? parseInt(body.weight) : db.products[prodIdx].weight,
           stock: body.stock !== undefined ? parseInt(body.stock) : db.products[prodIdx].stock,
+          category: body.category || db.products[prodIdx].category,
           image: body.image || db.products[prodIdx].image,
           description: body.description || db.products[prodIdx].description,
           category: body.category || db.products[prodIdx].category,
@@ -611,7 +643,26 @@ const server = http.createServer(async (req, res) => {
 
     if (subpath === "/orders" && method === "POST") {
       const body = await getJsonBody(req);
+<<<<<<< Updated upstream
       const { items, subtotal, shipping_cost, discount, total, payment_method, shipping_address, shipping_name } = body;
+=======
+      // Atualizar o histórico após ler o corpo para serializar pedidos locais concorrentes.
+      Object.assign(db, loadDb());
+      const { items, payment_method, shipping_address = {} } = body;
+      if (!Array.isArray(items) || !items.length || items.some(i => !Number.isInteger(i.quantity) || i.quantity < 1 || !db.products.some(p => p.id === i.product_id && p.stock >= i.quantity))) {
+        res.writeHead(400); res.end(JSON.stringify({error:'Itens ou estoque inválidos'})); return;
+      }
+      const rates = JSON.parse(fs.readFileSync(path.join(root, 'includes/shipping-rates.json'), 'utf8'));
+      const state = body.shipping_state || shipping_address.state;
+      if (!rates[state]) { res.writeHead(400); res.end(JSON.stringify({error:'Estado de entrega inválido'})); return; }
+      const cpf = currentUser.cpf.replace(/\D/g,'');
+      const eligible = !db.orders.some(o => db.users.some(u => u.id === o.user_id && u.cpf.replace(/\D/g,'') === cpf));
+      const subtotal = items.reduce((sum,i) => sum + db.products.find(p => p.id === i.product_id).price * i.quantity, 0);
+      const weight = items.reduce((sum,i) => sum + db.products.find(p => p.id === i.product_id).weight * i.quantity, 0);
+      const shipping_cost = eligible ? 0 : rates[state].price + Math.max(0,Math.ceil((weight - 500)/500)) * 5.5;
+      const discount = 0;
+      const total = subtotal + shipping_cost;
+>>>>>>> Stashed changes
 
       const orderNum = 1000 + db.orders.length + 1;
       const today = new Date();
@@ -619,18 +670,19 @@ const server = http.createServer(async (req, res) => {
 
       // Criar itens
       const orderItems = (items || []).map(i => {
+        const product = db.products.find(p => p.id === i.product_id);
         // Reduzir estoque
         const prodIdx = db.products.findIndex(p => p.id === i.product_id);
         if (prodIdx !== -1) {
           db.products[prodIdx].stock = Math.max(0, db.products[prodIdx].stock - i.quantity);
         }
         return {
-          product_name: i.name || "Produto",
-          product_sku: i.sku || "SKU",
+          product_name: product.name,
+          product_sku: product.sku,
           quantity: i.quantity,
-          unit_price: parseFloat(i.price).toFixed(2),
-          total_price: (parseFloat(i.price) * i.quantity).toFixed(2),
-          image: i.image || ""
+          unit_price: parseFloat(product.price).toFixed(2),
+          total_price: (parseFloat(product.price) * i.quantity).toFixed(2),
+          image: product.image || ""
         };
       });
 
@@ -675,6 +727,7 @@ const server = http.createServer(async (req, res) => {
         shipping_cost: parseFloat(shipping_cost || 0).toFixed(2),
         discount: parseFloat(discount || 0).toFixed(2),
         total: parseFloat(total).toFixed(2),
+<<<<<<< Updated upstream
         payment_label: payMethod === "pix" ? "PIX" : (payMethod === "boleto" ? "Boleto" : "Cartão de Crédito"),
         shipping_name: shipping_name || currentUser.name,
         shipping_street: shipping_address?.street || body.customerAddress || "",
@@ -684,6 +737,17 @@ const server = http.createServer(async (req, res) => {
         shipping_city: shipping_address?.city || body.customerCity || "",
         shipping_state: shipping_address?.state || body.customerState || "",
         shipping_zip: shipping_address?.zip_code || body.checkoutCep || "",
+=======
+        payment_label: payment_method || "PIX",
+        shipping_name: currentUser.name,
+        shipping_street: body.shipping_street || shipping_address.street || body.customerAddress || "",
+        shipping_number: body.shipping_number || shipping_address.number || body.customerNumber || "",
+        shipping_complement: body.shipping_complement || shipping_address.complement || body.customerComplement || "",
+        shipping_neighborhood: body.shipping_neighborhood || shipping_address.neighborhood || body.customerNeighborhood || "",
+        shipping_city: body.shipping_city || shipping_address.city || body.customerCity || "",
+        shipping_state: body.shipping_state || shipping_address.state || body.customerState || "",
+        shipping_zip: body.shipping_zip || shipping_address.zip_code || body.checkoutCep || "",
+>>>>>>> Stashed changes
         formatted_date: formattedDate,
         status_history: [
           {

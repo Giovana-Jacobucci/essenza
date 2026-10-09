@@ -7,23 +7,6 @@ const EssenzaAdmin = (() => {
   const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   let currentSection = 'dashboard';
 
-  /* ── Mapa de Subcategorias ── */
-  const subcategoryMap = {
-    'Vestidos':   ['Vestidos Longos', 'Vestidos Curtos', 'Vestidos Midi', 'Vestidos Florais'],
-    'Blusas':     ['T-Shirts', 'Croppeds', 'Blusas Sociais', 'Regatas'],
-    'Calças':     ['Calça Jeans', 'Calça Social', 'Legging', 'Shorts'],
-    'Perfumes':   ['Feminino', 'Masculino', 'Unissex'],
-    'Acessórios': ['Colares', 'Brincos', 'Pulseiras', 'Bolsas', 'Cintos'],
-  };
-
-  function populateSubcategories(category, selectedValue = '') {
-    const subSelect = document.getElementById('pSubcategory');
-    if (!subSelect) return;
-    const subs = subcategoryMap[category] || [];
-    subSelect.innerHTML = '<option value="">— Nenhuma —</option>' +
-      subs.map(s => `<option value="${s}"${s === selectedValue ? ' selected' : ''}>${s}</option>`).join('');
-  }
-
   async function api(url, options = {}) {
     return EssenzaAuth.api(url, options);
   }
@@ -120,11 +103,8 @@ const EssenzaAdmin = (() => {
         <td>#${o.order_number}</td>
         <td>${o.formatted_date}</td>
         <td>
-          <div>${o.shipping_name || o.customer_name || '-'}</div>
-        </td>
-        <td>
-          <div class="address-cell">${o.shipping_street || '-'}${o.shipping_number ? ', ' + o.shipping_number : ''}</div>
-          <small>${o.shipping_city || ''}${o.shipping_state ? '/' + o.shipping_state : ''}</small>
+          <div>${o.customer_name}</div>
+          <small>${o.customer_email}</small>
         </td>
         <td>${money.format(parseFloat(o.total))}</td>
         <td>${o.payment_label}</td>
@@ -263,27 +243,19 @@ const EssenzaAdmin = (() => {
     const tbody = document.getElementById('productsTable');
     if (!tbody) return;
 
-    tbody.innerHTML = products.map(p => {
-      const tags = [];
-      if (p.is_new == 1) tags.push('<span class="product-tag product-tag--new">✦ Novo</span>');
-      if (p.is_best_seller == 1) tags.push('<span class="product-tag product-tag--best">🔥 Destaque</span>');
-      return `
+    tbody.innerHTML = products.map(p => `
       <tr>
         <td>${p.sku || '-'}</td>
         <td>${p.name}</td>
-        <td>
-          <div>${p.category || '-'}</div>
-          ${p.subcategory ? `<small>${p.subcategory}</small>` : ''}
-        </td>
+        <td>${p.category || '-'}</td>
         <td>${money.format(parseFloat(p.price))}</td>
         <td class="${parseInt(p.stock) <= 5 ? 'low-stock' : ''}">${p.stock}</td>
-        <td><div class="product-tags">${tags.join('') || '<span style="color:var(--admin-muted)">—</span>'}</div></td>
         <td>
           <button type="button" onclick="EssenzaAdmin.editProduct('${p.id}')" class="btn-sm">Editar</button>
           <button type="button" onclick="EssenzaAdmin.deleteProduct('${p.id}')" class="btn-sm btn-danger">Excluir</button>
         </td>
       </tr>
-    `;}).join('');
+    `).join('');
 
     renderPagination('productsPagination', pagination, loadProducts);
   }
@@ -292,16 +264,78 @@ const EssenzaAdmin = (() => {
     try {
       const product = await api(`/api/products/${productId}`);
       openProductForm(product);
-    } catch (err) {
-      if (window.EssenzaApp) EssenzaApp.showToast(err.message || 'Erro ao carregar produto', '⚠️');
-    }
+    } catch {}
+  }
+
+  function isValidImageFile(file) {
+    if (!file) return false;
+    const validExts = /\.(png|jpe?g|webp)$/i;
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/pjpeg', 'image/webp'];
+    const typeOk = file.type ? validTypes.includes(file.type.toLowerCase()) : false;
+    const extOk = validExts.test(file.name || '');
+    return (typeOk || extOk) && file.size <= 12 * 1024 * 1024;
+  }
+
+  function readAndOptimizeImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Não foi possível ler o arquivo selecionado.'));
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        const img = new Image();
+        img.onerror = () => resolve(dataUrl);
+        img.onload = () => {
+          const maxDim = 1600;
+          let { width, height } = img;
+          if (width <= maxDim && height <= maxDim && file.size < 2 * 1024 * 1024) {
+            resolve(dataUrl);
+            return;
+          }
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const mime = (file.type && file.type.toLowerCase().includes('png')) ? 'image/png' : 'image/jpeg';
+          resolve(canvas.toDataURL(mime, 0.90));
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   function openProductForm(product = null) {
     const form = document.getElementById('adminProductForm');
     if (!form) return;
-    form.style.display = 'block';
-    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    form.style.display = '';
+    form.reset();
+    form.querySelector('#pImage').value = product?.image || '';
+    const fileInput = form.querySelector('#pImageFile');
+    if (fileInput) {
+      fileInput.value = '';
+      fileInput.required = !product?.image;
+    }
+    const preview = form.querySelector('#pImagePreview');
+    preview.hidden = !product?.image;
+    preview.src = product?.image || '';
+    const msg = form.querySelector('#productFormMessage');
+    if (msg) {
+      msg.textContent = '';
+      msg.style.display = 'none';
+    }
+    const category = form.querySelector('#pCategory');
+    if (product?.category && ![...category.options].some(o => o.value === product.category)) {
+      category.add(new Option(product.category, product.category));
+    }
+    category.value = product?.category || '';
 
     if (product) {
       form.querySelector('#pId').value = product.id;
@@ -312,23 +346,10 @@ const EssenzaAdmin = (() => {
       form.querySelector('#pStock').value = product.stock;
       form.querySelector('#pImage').value = product.image || '';
       form.querySelector('#pDescription').value = product.description;
-      form.querySelector('#pCategory').value = product.category || 'Vestidos';
-      populateSubcategories(product.category || 'Vestidos', product.subcategory || '');
-
-      // Tag toggles
-      const isNew = product.is_new == 1;
-      const isBest = product.is_best_seller == 1;
-      form.querySelector('#pNew').value = isNew ? '1' : '0';
-      form.querySelector('#pBestSeller').value = isBest ? '1' : '0';
-      form.querySelector('#pNewToggle').classList.toggle('active', isNew);
-      form.querySelector('#pBestSellerToggle').classList.toggle('active', isBest);
+      form.querySelector('#pNew').checked = product.is_new == 1;
+      form.querySelector('#pBestSeller').checked = product.is_best_seller == 1;
     } else {
-      form.reset();
       form.querySelector('#pId').value = '';
-      form.querySelector('#pNew').value = '0';
-      form.querySelector('#pBestSeller').value = '0';
-      form.querySelectorAll('.tag-toggle').forEach(t => t.classList.remove('active'));
-      populateSubcategories(form.querySelector('#pCategory').value);
     }
   }
 
@@ -338,6 +359,7 @@ const EssenzaAdmin = (() => {
     const id = form.querySelector('#pId').value;
     const method = id ? 'PUT' : 'POST';
     const url = id ? `/api/products/${id}` : '/api/products';
+    const submitBtn = form.querySelector('[type="submit"]');
 
     const data = {
       sku: form.querySelector('#pSku').value,
@@ -345,21 +367,57 @@ const EssenzaAdmin = (() => {
       price: parseFloat(form.querySelector('#pPrice').value),
       weight: parseInt(form.querySelector('#pWeight').value) || 0,
       stock: parseInt(form.querySelector('#pStock').value) || 0,
+      category: form.querySelector('#pCategory').value,
       image: form.querySelector('#pImage').value,
       description: form.querySelector('#pDescription').value,
-      category: form.querySelector('#pCategory').value,
-      subcategory: form.querySelector('#pSubcategory').value || null,
-      is_new: form.querySelector('#pNew').value === '1',
-      is_best_seller: form.querySelector('#pBestSeller').value === '1',
+      is_new: form.querySelector('#pNew').checked,
+      is_best_seller: form.querySelector('#pBestSeller').checked,
     };
 
+    const msg = form.querySelector('#productFormMessage');
+    if (msg) {
+      msg.textContent = '';
+      msg.style.display = 'none';
+    }
+
     try {
+      submitBtn.disabled = true;
+      const file = form.querySelector('#pImageFile').files[0];
+      if (file) {
+        if (!isValidImageFile(file)) {
+          throw new Error('Selecione uma foto PNG, JPG ou WebP de até 12 MB.');
+        }
+        submitBtn.textContent = 'Enviando foto...';
+        const imageData = await readAndOptimizeImage(file);
+        const uploaded = await api('/api/products/upload', {
+          method: 'POST',
+          body: JSON.stringify({ image: imageData })
+        });
+        if (!uploaded?.image) throw new Error('Servidor não retornou a URL da imagem.');
+        data.image = uploaded.image;
+        form.querySelector('#pImage').value = uploaded.image;
+      } else if (!data.image) {
+        throw new Error('Por favor, selecione uma foto para o produto.');
+      }
+
+      submitBtn.textContent = 'Salvando produto...';
       await api(url, { method, body: JSON.stringify(data) });
-      EssenzaApp?.showToast(id ? 'Produto atualizado!' : 'Produto criado!', '✓');
+      alert(id ? 'Produto atualizado com sucesso!' : 'Produto criado com sucesso!');
       form.style.display = 'none';
       loadProducts();
     } catch (err) {
-      EssenzaApp?.showToast(err.message, '⚠️');
+      console.error('Erro ao salvar produto:', err);
+      if (msg) {
+        msg.textContent = err.message || 'Erro ao salvar produto';
+        msg.style.display = 'block';
+        msg.style.color = '#e53e3e';
+      }
+      alert('Atenção: ' + (err.message || 'Erro ao salvar produto. Verifique os dados.'));
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Salvar Produto';
+      }
     }
   }
 
@@ -474,12 +532,23 @@ const EssenzaAdmin = (() => {
       document.getElementById('adminProductForm').style.display = 'none';
     });
 
-    // Subcategoria dinâmica
-    const catSelect = document.getElementById('pCategory');
-    if (catSelect) {
-      catSelect.addEventListener('change', () => populateSubcategories(catSelect.value));
-      populateSubcategories(catSelect.value);
-    }
+    let previewUrl;
+    document.getElementById('pImageFile')?.addEventListener('change', e => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      const input = e.target;
+      const file = input.files[0];
+      input.setCustomValidity('');
+      if (file && !isValidImageFile(file)) {
+        input.setCustomValidity('Selecione uma foto PNG, JPG ou WebP de até 12 MB.');
+        input.reportValidity();
+      }
+      const preview = document.getElementById('pImagePreview');
+      previewUrl = file && input.validity.valid ? URL.createObjectURL(file) : null;
+      if (preview) {
+        preview.src = previewUrl || document.getElementById('pImage').value;
+        preview.hidden = !preview.getAttribute('src');
+      }
+    });
 
     // Busca de produtos
     document.getElementById('productSearch')?.addEventListener('input', () => loadProducts());
@@ -488,18 +557,6 @@ const EssenzaAdmin = (() => {
     // Modal fechar
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
       btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
-    });
-
-    // Tag toggles
-    document.querySelectorAll('.tag-toggle').forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        toggle.classList.toggle('active');
-        const targetId = toggle.dataset.target;
-        const hiddenInput = document.getElementById(targetId);
-        if (hiddenInput) {
-          hiddenInput.value = toggle.classList.contains('active') ? '1' : '0';
-        }
-      });
     });
   }
 

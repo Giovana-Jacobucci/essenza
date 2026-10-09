@@ -6,8 +6,12 @@
 
 $subPath = '/' . implode('/', array_slice($segments, 1));
 $pdo = Database::getInstance();
+require_once __DIR__ . '/../includes/product-upload.php';
 
 switch (true) {
+    case $method === 'POST' && $subPath === '/upload':
+        uploadProductImage();
+        break;
 
     // ── GET /api/products ── (público)
     case $method === 'GET' && ($subPath === '/' || $subPath === ''):
@@ -64,7 +68,7 @@ switch (true) {
         break;
 
     // ── GET /api/products/{id} ── (público)
-    case $method === 'GET' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
+    case $method === 'GET' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
         $productId = $m[1];
 
         $stmt = $pdo->prepare(
@@ -114,7 +118,7 @@ switch (true) {
     // ── POST /api/products ── (admin)
     case $method === 'POST' && $subPath === '/':
         $admin = Auth::requireAdmin();
-        $data = getJsonBody();
+        $data = resolveProductCategory($pdo, getJsonBody());
         $missing = validateRequired($data, ['name', 'price', 'description']);
 
         if ($missing) {
@@ -122,17 +126,6 @@ switch (true) {
         }
 
         $id = $data['id'] ?? generateUUID();
-
-        $categoryName = !empty($data['subcategory']) ? $data['subcategory'] : (!empty($data['category']) ? $data['category'] : null);
-        $categoryId = null;
-        if ($categoryName) {
-            $catStmt = $pdo->prepare('SELECT id FROM categories WHERE name = ? LIMIT 1');
-            $catStmt->execute([$categoryName]);
-            $catRow = $catStmt->fetch();
-            if ($catRow) {
-                $categoryId = $catRow['id'];
-            }
-        }
 
         $stmt = $pdo->prepare(
             'INSERT INTO products (id, sku, name, slug, category_id, brand_id, price, compare_price, weight, stock, image, description, short_description, is_new, is_best_seller)
@@ -143,7 +136,7 @@ switch (true) {
             $data['sku'] ?? null,
             $data['name'],
             $data['slug'] ?? null,
-            $categoryId,
+            $data['category_id'] ?? null,
             $data['brand_id'] ?? null,
             $data['price'],
             $data['compare_price'] ?? null,
@@ -171,10 +164,10 @@ switch (true) {
         break;
 
     // ── PUT /api/products/{id} ── (admin)
-    case $method === 'PUT' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
+    case $method === 'PUT' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
         $admin = Auth::requireAdmin();
         $productId = $m[1];
-        $data = getJsonBody();
+        $data = resolveProductCategory($pdo, getJsonBody());
 
         // Verificar estoque anterior para movimentação
         $stmt = $pdo->prepare('SELECT stock, name FROM products WHERE id = ?');
@@ -183,17 +176,6 @@ switch (true) {
 
         if (!$oldProduct) {
             jsonError('Produto não encontrado', 404);
-        }
-
-        $categoryName = !empty($data['subcategory']) ? $data['subcategory'] : (!empty($data['category']) ? $data['category'] : null);
-        $categoryId = null;
-        if ($categoryName) {
-            $catStmt = $pdo->prepare('SELECT id FROM categories WHERE name = ? LIMIT 1');
-            $catStmt->execute([$categoryName]);
-            $catRow = $catStmt->fetch();
-            if ($catRow) {
-                $categoryId = $catRow['id'];
-            }
         }
 
         $stmt = $pdo->prepare(
@@ -206,7 +188,7 @@ switch (true) {
             $data['sku'] ?? null,
             $data['name'],
             $data['slug'] ?? null,
-            $categoryId,
+            $data['category_id'] ?? null,
             $data['brand_id'] ?? null,
             $data['price'],
             $data['compare_price'] ?? null,
@@ -240,7 +222,7 @@ switch (true) {
         break;
 
     // ── DELETE /api/products/{id} ── (admin)
-    case $method === 'DELETE' && preg_match('#^/([a-zA-Z0-9_-]+)$#', $subPath, $m):
+    case $method === 'DELETE' && preg_match('#^/([a-f0-9-]{36})$#', $subPath, $m):
         $admin = Auth::requireAdmin();
         $productId = $m[1];
 

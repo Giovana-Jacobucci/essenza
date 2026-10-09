@@ -152,6 +152,7 @@ function paymentMethodLabel(string $method): string {
         'credit_card' => 'Cartão de Crédito',
         'debit_card'  => 'Cartão de Débito',
         'boleto'      => 'Boleto',
+        'mercado_pago' => 'Mercado Pago',
         default       => $method,
     };
 }
