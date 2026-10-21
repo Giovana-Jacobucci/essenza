@@ -643,9 +643,6 @@ const server = http.createServer(async (req, res) => {
 
     if (subpath === "/orders" && method === "POST") {
       const body = await getJsonBody(req);
-<<<<<<< Updated upstream
-      const { items, subtotal, shipping_cost, discount, total, payment_method, shipping_address, shipping_name } = body;
-=======
       // Atualizar o histórico após ler o corpo para serializar pedidos locais concorrentes.
       Object.assign(db, loadDb());
       const { items, payment_method, shipping_address = {} } = body;
@@ -662,7 +659,6 @@ const server = http.createServer(async (req, res) => {
       const shipping_cost = eligible ? 0 : rates[state].price + Math.max(0,Math.ceil((weight - 500)/500)) * 5.5;
       const discount = 0;
       const total = subtotal + shipping_cost;
->>>>>>> Stashed changes
 
       const orderNum = 1000 + db.orders.length + 1;
       const today = new Date();
@@ -727,17 +723,6 @@ const server = http.createServer(async (req, res) => {
         shipping_cost: parseFloat(shipping_cost || 0).toFixed(2),
         discount: parseFloat(discount || 0).toFixed(2),
         total: parseFloat(total).toFixed(2),
-<<<<<<< Updated upstream
-        payment_label: payMethod === "pix" ? "PIX" : (payMethod === "boleto" ? "Boleto" : "Cartão de Crédito"),
-        shipping_name: shipping_name || currentUser.name,
-        shipping_street: shipping_address?.street || body.customerAddress || "",
-        shipping_number: shipping_address?.number || body.customerNumber || "",
-        shipping_complement: shipping_address?.complement || body.customerComplement || "",
-        shipping_neighborhood: shipping_address?.neighborhood || body.customerNeighborhood || "",
-        shipping_city: shipping_address?.city || body.customerCity || "",
-        shipping_state: shipping_address?.state || body.customerState || "",
-        shipping_zip: shipping_address?.zip_code || body.checkoutCep || "",
-=======
         payment_label: payment_method || "PIX",
         shipping_name: currentUser.name,
         shipping_street: body.shipping_street || shipping_address.street || body.customerAddress || "",
@@ -747,7 +732,6 @@ const server = http.createServer(async (req, res) => {
         shipping_city: body.shipping_city || shipping_address.city || body.customerCity || "",
         shipping_state: body.shipping_state || shipping_address.state || body.customerState || "",
         shipping_zip: body.shipping_zip || shipping_address.zip_code || body.checkoutCep || "",
->>>>>>> Stashed changes
         formatted_date: formattedDate,
         status_history: [
           {
